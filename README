@@ -1,0 +1,45 @@
+Burrito Point of Service REST Web Service
+================================
+
+Overview
+-------------------------
+This is simple Point of Service REST web service for a small town burrito joint. 
+This project builds off of the earlier work with the Burrito POS Server.
+It serves as a starting point to refresh memory of or learn about new/existing languages, frameworks, design patterns, etc.
+
+Currently demonstrates
+-------------------------
+* Eclipse
+* Java
+* Maven
+* JUnit
+* Spring
+* Jersey (JAX-RS)
+* Yammer.metrics
+* JavaDoc
+  
+TODO
+-------------------------
+* Update/Complete unit tests
+* Update/Complete documentation
+
+Notes
+-------------------------
+* BurritoPOSServer.jar installed locally: 
+
+```mvn install:install-file -Dfile=BurritoPOSServer.jar -DgroupId=com.burritopos.server -DartifactId=neatoBurrito.server -Dversion=1.0.0-SNAPSHOT -Dpackaging=jar```
+
+BurritoPOS web service utilizes the [yammer.metrics] [1] library to provide service metrics and diagnostics.
+	
+The following servlets are initialized with the burritopos web service and can be accessed by using the relative URL shown.
+		
+ * Health Check servlet
+ 	* /burritopos-service/healthcheck
+ * Thread Dump servlet
+ 	* /burritopos-service/threads
+ * Metrics servlet
+ 	* /burritopos-service/metrics
+ * Ping servlet
+ 	* /burritopos-service/ping
+ 
+   [1]: http://metrics.codahale.com/        "yammer.metrics"
