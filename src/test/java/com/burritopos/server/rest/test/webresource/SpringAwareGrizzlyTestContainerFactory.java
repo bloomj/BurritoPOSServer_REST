@@ -123,7 +123,7 @@ public class SpringAwareGrizzlyTestContainerFactory implements TestContainerFact
 			sa.setProperty("load-on-startup", 1);
 			servletInstance = createrServletInstance(ad.getServletClass());
 			sa.setServletInstance(servletInstance);
-
+			
 			populateEventListeners(sa, ad.getListeners());
 			populateFilterDescriptors(sa, ad.getFilters());
 			populateContextParams(sa, ad.getContextParams());

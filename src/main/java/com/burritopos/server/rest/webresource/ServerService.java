@@ -60,11 +60,10 @@ public class ServerService {
         
         mapper = new ObjectMapper();
     }
-
-    // TODO: deprecate and remove this function and move authentication
     
     /**
      * Mimics the old socket login function
+     * Deprecated in favor of Oauth 2.0
      *
      * @param headers
      * @param ui
@@ -78,10 +77,15 @@ public class ServerService {
     @Produces(APPLICATION_JSON)
     public Response login(@Context HttpHeaders headers,
 				            @Context UriInfo ui,
-				            @PathParam("taskId") String taskId,
+				            @PathParam("username") String username,
 				            String payload
     ) throws Exception {
-        logger.trace("Attempting to login");
+    	ResponseBuilderImpl builder = new ResponseBuilderImpl();
+    	ObjectNode rootNode = mapper.createObjectNode();
+		rootNode.put("Status", "Login has been deprecated in favor of OAuth");
+    	return builder.status(Response.Status.GONE).entity(rootNode.toString()).build();
+    	
+        /*logger.trace("Attempting to login");
         
     	if (payload == null || payload.equals("")){
     		ResponseBuilderImpl builder = new ResponseBuilderImpl();
@@ -93,6 +97,6 @@ public class ServerService {
     	MultivaluedMap<String, String> queryParameters = ui.getQueryParameters();
     	Map<String, String> queryParams = BurritoPOSUtils.parseMultivaluedMap(queryParameters);
         
-        return Response.ok(server.doLogin(queryParams, payload)).build();
+        return Response.ok(server.doLogin(queryParams, payload)).build();*/
     }
 }

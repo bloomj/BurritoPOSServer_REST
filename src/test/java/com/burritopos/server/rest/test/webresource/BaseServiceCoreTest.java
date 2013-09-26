@@ -4,7 +4,9 @@ import com.burritopos.server.domain.User;
 import com.burritopos.server.service.crypto.BCrypt;
 import com.burritopos.server.service.dao.IUserSvc;
 import com.burritopos.server.service.dao.mongo.UserSvcImpl;
+import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
+import com.sun.jersey.api.client.filter.HTTPBasicAuthFilter;
 import com.sun.jersey.spi.spring.container.servlet.SpringServlet;
 
 import com.sun.jersey.test.framework.WebAppDescriptor;
@@ -96,6 +98,7 @@ public class BaseServiceCoreTest extends AbstractSpringAwareJerseyTest {
     
     /**
      * Initializes the service Jersey test runner and sets the context to the applicationContext.xml.
+     * 
      */
     public BaseServiceCoreTest() {
         super(new WebAppDescriptor.Builder(PACKAGE_NAME)
@@ -104,6 +107,8 @@ public class BaseServiceCoreTest extends AbstractSpringAwareJerseyTest {
                 .servletClass(SpringServlet.class)
                 .contextListenerClass(ContextLoaderListener.class)
                 .requestListenerClass(RequestContextListener.class)
+                .addFilter(org.springframework.web.filter.DelegatingFilterProxy.class, "springSecurityFilterChain")
+                .addFilter(com.burritopos.server.rest.filter.RequestFilter.class, "RESTInitFilter")
                 .build());
     }
     
@@ -119,21 +124,25 @@ public class BaseServiceCoreTest extends AbstractSpringAwareJerseyTest {
      * @throws Exception 
      */
     protected JsonNode sendRequest(String method, String path, String parameter, ObjectNode rootNode, MultivaluedMap<String, String> params, int statusCode) throws Exception {
-        path = DEFAULT_URI + path;
-        ws = resource().path(path);
+        //path = DEFAULT_URI + path;
+    	System.out.println("URI: " + DEFAULT_URI);
+    	System.out.println("path: " + path);
+        Client c = Client.create();
+        c.addFilter(new HTTPBasicAuthFilter(tUser.getUserName(), tUser.getPassword()));
+        ws = c.resource(DEFAULT_URI).path(path);
         
     	if (method.equals("DELETE")) {
             System.out.println("Sending DELETE to path " + path);
-            response = ws.header("Authorization", "Bearer User").type(MediaType.APPLICATION_JSON).delete(ClientResponse.class);
+            response = ws.type(MediaType.APPLICATION_JSON).delete(ClientResponse.class);
         } else if (rootNode == null) {
             System.out.println("Sending " + method + " to path " + path);
 
             if (method.equals("POST")) {
-            	response = ws.header("Authorization", "Bearer User").type(MediaType.APPLICATION_JSON).post(ClientResponse.class);
+            	response = ws.type(MediaType.APPLICATION_JSON).post(ClientResponse.class);
             }
             else if (method.equals("GET")) {
-            	ws = resource().path(path).queryParams(params);
-                response = ws.header("Authorization", "Bearer User").type(MediaType.APPLICATION_JSON).get(ClientResponse.class);
+            	ws = c.resource(DEFAULT_URI).path(path).queryParams(params);
+                response = ws.type(MediaType.APPLICATION_JSON).get(ClientResponse.class);
             } else {
                 fail("Invalid method");
             }
@@ -142,7 +151,7 @@ public class BaseServiceCoreTest extends AbstractSpringAwareJerseyTest {
             System.out.println("Sending: " + rootNode.toString());
 
             if (method.equals("POST")) {
-            	response = ws.header("Authorization", "Bearer User").type(MediaType.APPLICATION_JSON).entity(rootNode.toString()).post(ClientResponse.class);
+            	response = ws.type(MediaType.APPLICATION_JSON).entity(rootNode.toString()).post(ClientResponse.class);
             }
             else {
                 fail("Invalid method");

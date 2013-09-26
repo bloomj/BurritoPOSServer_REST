@@ -47,8 +47,6 @@ public class BurritoServer {
         mapper = new ObjectMapper();
         factory = JsonNodeFactory.instance;
     }
-
-    // TODO: deprecate and remove this function and move authentication
     
     /**
      * Mimics socket login function
@@ -57,6 +55,7 @@ public class BurritoServer {
      * @return
      * @throws Exception
      */
+    @Deprecated
     public String doLogin(Map<String, String> parameters, String payload) throws Exception { 
     	dLog.trace("payload: " + payload);
     	

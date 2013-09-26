@@ -18,9 +18,15 @@
         included implicitly when using the component-scan element.
         That means that the two components are autodetected and wired together
     -->
-    <context:component-scan base-package="com.burritopos.server"/>
+    <context:component-scan base-package="com.burritopos.server.rest">
+    	<context:exclude-filter type="regex" expression="com\.burritopos\.server\.test\.*.class"/>
+    	<context:exclude-filter type="regex" expression="com\.burritopos\.server\.*\.test\.*.class"/>
+ 	</context:component-scan>
 
 	<aop:aspectj-autoproxy/>
+
+	<!-- OAuth -->
+    <import resource="oauth.xml" />
 
 	<!-- com.burritopos.server.rest.library -->
 	<bean id="userSvc" class="com.burritopos.server.service.dao.mongo.UserSvcImpl" scope="singleton"/>
@@ -30,7 +36,4 @@
 	<bean id="serverService" class="com.burritopos.server.rest.webresource.ServerService" scope="singleton">
 		<property name="server" ref="burritoServer" />
 	</bean>
-	
-	<!-- com.burritopos.server.rest.test.library -->
-	<bean id="serverServiceTest" class="com.burritopos.server.rest.test.library.BurritoServerTest" scope="singleton"/>
 </beans>

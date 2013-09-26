@@ -35,6 +35,7 @@
     <servletapi.version>2.5</servletapi.version>
     <aspectj.version>1.7.3</aspectj.version>
     <slf4j.version>1.7.5</slf4j.version>
+    <spring.security.oauth.version>1.0.5.RELEASE</spring.security.oauth.version>
   </properties>
   
   <!-- Help control dependency versions in case of parent-child hierarchy -->
@@ -224,11 +225,6 @@
             <version>${servletapi.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.aspectj</groupId>
-            <artifactId>aspectjrt</artifactId>
-            <version>${aspectj.version}</version>
-        </dependency>
-        <dependency>
 		  	<groupId>org.slf4j</groupId>
 		  	<artifactId>slf4j-api</artifactId>
 		  	<version>${slf4j.version}</version>
@@ -238,6 +234,28 @@
 			<artifactId>slf4j-log4j12</artifactId>
 			<version>${slf4j.version}</version>
 		</dependency>
+		<dependency>
+	        <groupId>org.springframework.security.oauth</groupId>
+	        <artifactId>spring-security-oauth2</artifactId>
+	        <version>${spring.security.oauth.version}</version>
+	        <!-- spring-asm was pulled into core for spring 3.2.0.RELEASE so exclude it here -->
+	        <!-- also remove jdbc -->
+            <exclusions>
+            	<exclusion>
+                	<artifactId>spring-asm</artifactId>
+                    <groupId>org.springframework</groupId>
+                </exclusion>
+                <exclusion>
+                	<artifactId>spring-jdbc</artifactId>
+                    <groupId>org.springframework</groupId>
+                </exclusion>
+            </exclusions>
+	    </dependency>
+		<dependency>
+        	<groupId>org.aspectj</groupId>
+            <artifactId>aspectjrt</artifactId>
+            <version>${aspectj.version}</version>
+        </dependency>
 	</dependencies>
   </dependencyManagement>
   
@@ -351,10 +369,6 @@
         <artifactId>servlet-api</artifactId>
     </dependency>
     <dependency>
-        <groupId>org.aspectj</groupId>
-        <artifactId>aspectjrt</artifactId>
-    </dependency>
-    <dependency>
 		<groupId>org.slf4j</groupId>
 		<artifactId>slf4j-api</artifactId>
 	</dependency>
@@ -362,6 +376,14 @@
 		<groupId>org.slf4j</groupId>
 		<artifactId>slf4j-log4j12</artifactId>
 	</dependency>
+	<dependency>
+	    <groupId>org.springframework.security.oauth</groupId>
+	    <artifactId>spring-security-oauth2</artifactId>
+	</dependency>
+	<dependency>
+       	<groupId>org.aspectj</groupId>
+        <artifactId>aspectjrt</artifactId>
+    </dependency>
   </dependencies>
   
   <!-- Build -->
@@ -397,19 +419,17 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.1</version>
                 <configuration>
                 	<source>${java.version}</source>
                     <target>${java.version}</target>
                 </configuration>
             </plugin>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>properties-maven-plugin</artifactId>
-            </plugin>
             <!-- Only run build tests, omitting integration tests -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
+                <version>2.16</version>
                 <dependencies>
                     <dependency>
                         <groupId>org.apache.maven.surefire</groupId>
@@ -426,6 +446,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-resources-plugin</artifactId>
+                <version>2.6</version>
                 <configuration>
                     <includeEmptyDirs>true</includeEmptyDirs>
                     <webResources>
@@ -434,30 +455,11 @@
 			            </resource>
           			</webResources>
                 </configuration>
-                <!--  <executions>
-                    <execution>
-                        <id>copy-webapp-tokens</id>
-                        <phase>process-resources</phase>
-                        <goals>
-                            <goal>copy-resources</goal>
-                        </goals>
-                        <configuration>
-                            <outputDirectory>${project.build.directory}/tokens</outputDirectory>
-                            <resources>
-                                <resource>
-                                    <directory>${project.basedir}/src/main/webapp</directory>
-                                    <includes>
-                                        <include>**/**</include>
-                                    </includes>
-                                </resource>
-                            </resources>
-                        </configuration>
-                    </execution>
-                </executions>-->
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-war-plugin</artifactId>
+                <version>2.4</version>
                 <configuration>
                     <webResources>
                         <resource>
@@ -467,25 +469,6 @@
                     </webResources>
                 </configuration>
             </plugin>
-            <!-- <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-assembly-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>create-assemblies</id>
-                        <goals>
-                            <goal>single</goal>
-                        </goals>
-                        <phase>package</phase>
-                        <configuration>
-                            <descriptors>
-                                <descriptor>${project.basedir}/src/main/assembly/tokens.xml</descriptor>
-                                <descriptor>${project.basedir}/src/main/assembly/filtered.xml</descriptor>
-                            </descriptors>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>-->
         </plugins>
 	</build>
 	
@@ -496,25 +479,6 @@
             <properties/>
             <build>
                 <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-enforcer-plugin</artifactId>
-                        <executions>
-                            <!--  <execution>
-                                <goals>
-                                    <goal>enforce</goal>
-                                </goals>
-                                <configuration>
-                                    <rules>
-                                        <requireProperty>
-                                            <property>env.CATALINA_HOME</property>
-                                            <message>You must set CATALINA_HOME before building.</message>
-                                        </requireProperty>
-                                    </rules>
-                                </configuration>
-                            </execution> -->
-                        </executions>
-                    </plugin>
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-dependency-plugin</artifactId>

@@ -96,12 +96,22 @@
         <welcome-file>index.jsp</welcome-file>
     </welcome-file-list>
 
+	<!-- Spring OAuth Security Filter Chain -->
+    <filter>
+        <filter-name>springSecurityFilterChain</filter-name>
+        <filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>springSecurityFilterChain</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+    <!-- Custom init filter -->
 	<filter>
-		<filter-name>REST initialization filter</filter-name>
+		<filter-name>RESTInitFilter</filter-name>
 		<filter-class>com.burritopos.server.rest.filter.RequestFilter</filter-class>
 	</filter>
     <filter-mapping>
-        <filter-name>REST initialization filter</filter-name>
+        <filter-name>RESTInitFilter</filter-name>
         <url-pattern>/*</url-pattern>
     </filter-mapping>
 </web-app>

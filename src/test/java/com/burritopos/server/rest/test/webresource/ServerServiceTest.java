@@ -9,7 +9,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import javax.ws.rs.core.MediaType;
@@ -23,7 +22,6 @@ import static org.junit.Assert.assertNotNull;
  *
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration("classpath:applicationContext.xml")
 public class ServerServiceTest extends BaseServiceCoreTest {
 
     /**
@@ -54,7 +52,7 @@ public class ServerServiceTest extends BaseServiceCoreTest {
     }
 
     /**
-     * Tests for 200 response to a POST method to path /login and verifies the response payload.
+     * Tests for 410 response to a POST method to path /login and verifies the response payload.
      * @throws Exception 
      */
     @Test
@@ -65,25 +63,39 @@ public class ServerServiceTest extends BaseServiceCoreTest {
     	rootNode.put("Username", tUser.getUserName());
     	rootNode.put("Password", "password");
     	
-    	responseJson = sendRequest("POST", "login", "", rootNode, new MultivaluedMapImpl(), 200);
+    	responseJson = sendRequest("POST", "login", "", rootNode, new MultivaluedMapImpl(), 410);
     	
-    	assertNotNull(responseJson.get("Success"));
-    	assertEquals("true", responseJson.get("Success").asText());
+    	assertNotNull(responseJson.get("Status"));
+    	assertEquals("Login has been deprecated in favor of OAuth", responseJson.get("Status").asText());
     }
 
     /**
-     * Tests for 4XX response to a POST method to path /login via invalid acceptable media type.
+     * Tests for 401 response to a POST method to path /login without Basic Authentication.
      * @throws Exception 
      */
     @Test
     @Category(BuildTests.class)
     public void testInvalidLoginPOST() throws Exception {
-        String path = DEFAULT_URI + "login";
+    	String path = DEFAULT_URI + "/login";
+        ws = resource().path(path);
+
+        System.out.println("Sending GET to path " + path + " without Basic Authentication for Oauth");
+
+        ClientResponse response = ws.accept(MediaType.APPLICATION_XML).post(ClientResponse.class);
+
+        // now get the response entity
+        String responsePayload = response.getEntity(String.class);
+        System.out.println("Returned: " + response.getStatus() + " " + responsePayload);
+        System.out.println("   ");
+
+        assertEquals(401, response.getStatus());
+        
+        /*String path = DEFAULT_URI + "login";
         ws = resource().path(path);
 
         System.out.println("Sending GET to path " + path + " with invalid media type");
 
-        ClientResponse response = ws.header("Authorization", "Bearer user").accept(MediaType.APPLICATION_XML).post(ClientResponse.class);
+        ClientResponse response = ws.accept(MediaType.APPLICATION_XML).post(ClientResponse.class);
 
         // now get the response entity
         String responsePayload = response.getEntity(String.class);
@@ -113,6 +125,6 @@ public class ServerServiceTest extends BaseServiceCoreTest {
     	responseJson = sendRequest("POST", "login", "", rootNode, new MultivaluedMapImpl(), 400);
     	
     	assertNotNull(responseJson.get("Error"));
-    	assertEquals("Password is required", responseJson.get("Error").asText());
+    	assertEquals("Password is required", responseJson.get("Error").asText());*/
     }
 }

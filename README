@@ -15,6 +15,7 @@ Currently demonstrates
 * JUnit
 * Spring
 * Jersey (JAX-RS)
+* OAuth
 * Yammer.metrics
 * JavaDoc
   
@@ -22,6 +23,7 @@ TODO
 -------------------------
 * Update/Complete unit tests
 * Update/Complete documentation
+* Update requirements to demonstrate Activiti, AMQP, and possibly Solr
 
 Notes
 -------------------------

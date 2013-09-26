@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:sec="http://www.springframework.org/schema/security"
+	   xmlns:oauth="http://www.springframework.org/schema/security/oauth2"
+	   xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans 
+       						http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+       						http://www.springframework.org/schema/context 
+							http://www.springframework.org/schema/context/spring-context-3.1.xsd
+							http://www.springframework.org/schema/security 
+							http://www.springframework.org/schema/security/spring-security-3.1.xsd
+							http://www.springframework.org/schema/security/oauth2 
+							http://www.springframework.org/schema/security/spring-security-oauth2-1.0.xsd					
+         					http://www.springframework.org/schema/aop 
+							http://www.springframework.org/schema/aop/spring-aop.xsd">
+
+    <!-- ========================= Dependencies ==================================== -->
+
+	<!-- Auto-config most of the spring security settings
+		Set to HTTP-BASIC for REST endpoints -->
+	<sec:http auto-config="true" access-denied-page="/denied.jsp" >
+		<sec:intercept-url pattern="/**" access="ROLE_USER"/>
+		<sec:http-basic />
+	</sec:http>
+
+	<bean id="oauthDataProvider" class="com.burritopos.server.rest.security.dao.OAuthMongoDAO" scope="singleton"/>
+
+	<!-- Specifies that the oauth 2 authorization and token endpoints should be created in the application context. These are
+				implemented as regular Spring @Controller beans, so as long as the default Spring MVC set up in
+				present in the application the endpoints should work (at /oauth/authorization and /oauth/token by default). -->
+    <authentication-manager xmlns="http://www.springframework.org/schema/security">
+		<authentication-provider user-service-ref="oauthDataProvider" />
+	</authentication-manager>
+	
+</beans>

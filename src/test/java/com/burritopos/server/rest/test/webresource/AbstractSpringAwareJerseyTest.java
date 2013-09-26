@@ -34,7 +34,7 @@ public abstract class AbstractSpringAwareJerseyTest extends JerseyTest {
 	  };
 	};
 
-    protected static String DEFAULT_URI = "/";
+    protected static String DEFAULT_URI = "http://localhost:9998";
     protected static ObjectMapper mapper;
     protected JsonNodeFactory factory;
     protected JsonNode responseJson;

@@ -84,7 +84,8 @@ public class BurritoServerTest extends BaseTestCase {
      * Tests successful doLogin.
      * @throws Exception 
      */
-    @Test
+    @SuppressWarnings("deprecation")
+	@Test
     @Category(BuildTests.class)
     public void testDoLogin() throws Exception {
     	// build payload
