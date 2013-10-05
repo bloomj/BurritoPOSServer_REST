@@ -31,8 +31,9 @@ public class MembershipManager extends MembershipEntityManager {
      * Constructor
      * @throws IOException 
      */
-    public MembershipManager() {
-
+    public MembershipManager(IGroupSvc groupSvc, IUserSvc userSvc) {
+    	this.groupSvc = groupSvc;
+    	this.userSvc = userSvc;
     }
     
     /**
@@ -60,6 +61,7 @@ public class MembershipManager extends MembershipEntityManager {
 	public MembershipEntity getMembership(String userName, String groupName) {
 		MembershipEntity membership = null;
 		
+		dLog.trace("Getting membership for user: " + userName + " | group name: " + groupName);
         try {
         	com.burritopos.server.domain.User user = userSvc.getUser(userName);
         	com.burritopos.server.domain.Group group = groupSvc.getGroup(groupName);

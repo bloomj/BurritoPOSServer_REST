@@ -39,7 +39,7 @@ Be sure the CATALINA_HOME environment variable is correctly configured before bu
 
 ```mvn install:install-file -Dfile=BurritoPOSServer.jar -DgroupId=com.burritopos.server -DartifactId=neatoBurrito.server -Dversion=1.0.0-SNAPSHOT -Dpackaging=jar```
 
-Activiti will automatically setup the necessary schema so no pre-initialization of tables are necessary.
+Activiti will automatically setup the necessary schema so no pre-initialization of tables are necessary as long as a blank table named 'activiti' exists in PostGRES.
 
 BurritoPOS web service utilizes the [yammer.metrics](http://metrics.codahale.com/) library to provide service metrics and diagnostics.
 	
