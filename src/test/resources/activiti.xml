@@ -41,11 +41,21 @@
         <!--<property name="jobExecutorActivate" value="${activiti.jobexecutoractivate}" /> false turns off, default is on to enable timer support -->
 
 		<!-- Define custom identity session factories to tie into same DataSource as OAuth -->
+		<!-- Activiti 5.13 doesn't load these factories properly, reverting back to 5.12 where they still work -->
         <property name="customSessionFactories">
             <list>
-            	<bean class="com.burritopos.server.rest.identity.group.GroupManagerFactory" scope="singleton"/>
-            	<bean class="com.burritopos.server.rest.identity.membership.MembershipManagerFactory" scope="singleton"/>
-                <bean class="com.burritopos.server.rest.identity.user.UserManagerFactory" scope="singleton"/>
+            	<bean class="com.burritopos.server.rest.identity.group.GroupManagerFactory" scope="singleton">
+            		<property name="groupSvc" ref="groupSvc"/>
+            		<property name="userSvc" ref="userSvc"/>
+            	</bean>
+            	<bean class="com.burritopos.server.rest.identity.membership.MembershipManagerFactory" scope="singleton">
+            		<property name="groupSvc" ref="groupSvc"/>
+            		<property name="userSvc" ref="userSvc"/>
+            	</bean>
+                <bean class="com.burritopos.server.rest.identity.user.UserManagerFactory" scope="singleton">
+            		<property name="groupSvc" ref="groupSvc"/>
+            		<property name="userSvc" ref="userSvc"/>
+            	</bean>
             </list>
         </property>
     </bean>

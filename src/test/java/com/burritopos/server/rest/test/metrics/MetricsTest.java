@@ -5,6 +5,7 @@ import java.io.IOException;
 import com.burritopos.server.rest.metrics.*;
 import com.burritopos.server.rest.test.BuildTests;
 import com.burritopos.server.rest.test.BaseTestCase;
+import com.burritopos.server.rest.test.IntegrationTests;
 import com.yammer.metrics.core.HealthCheck.Result;
 
 import org.junit.Test;
@@ -40,7 +41,7 @@ public class MetricsTest extends BaseTestCase {
      * Tests ActivitiHealthCheck class
      */
     @Test
-    @Category(BuildTests.class)
+    @Category(IntegrationTests.class)
     public void testActivitiHealthCheck() {
     	ActivitiHealthCheck check = new ActivitiHealthCheck();
     	

@@ -39,13 +39,26 @@
 	<bean id="groupSvc" class="com.burritopos.server.service.dao.mongo.GroupSvcImpl" scope="singleton"/>
 
 	<!-- com.burritopos.server.rest.identity -->
-	<bean id="groupManager" class="com.burritopos.server.rest.identity.group.GroupManager" scope="singleton"/>
-	<bean id="membershipManager" class="com.burritopos.server.rest.identity.membership.MembershipManager" scope="singleton"/>
-	<bean id="userManager" class="com.burritopos.server.rest.identity.user.UserManager" scope="singleton"/>
+	<bean id="groupManager" class="com.burritopos.server.rest.identity.group.GroupManager" scope="singleton">
+		<constructor-arg name="groupSvc" ref="groupSvc" />
+		<constructor-arg name="userSvc" ref="userSvc" />
+    </bean>
+	<bean id="membershipManager" class="com.burritopos.server.rest.identity.membership.MembershipManager" scope="singleton">
+    	<constructor-arg name="groupSvc" ref="groupSvc"/>
+        <constructor-arg name="userSvc" ref="userSvc"/>
+    </bean>
+	<bean id="userManager" class="com.burritopos.server.rest.identity.user.UserManager" scope="singleton">
+    	<constructor-arg name="groupSvc" ref="groupSvc"/>
+        <constructor-arg name="userSvc" ref="userSvc"/>
+    </bean>
 
 	<!-- com.burritopos.server.rest.library -->
-	<bean id="activitiSvc" class="com.burritopos.server.rest.library.WorkflowActiviti" scope="singleton"/>
 	<bean id="burritoServer" class="com.burritopos.server.rest.library.BurritoServer" scope="singleton"/>
+	
+	<bean id="activitiSvc" class="com.burritopos.server.rest.library.activiti.WorkflowActiviti" scope="singleton"/>
+	<bean id="activitiDefinitionSvc" class="com.burritopos.server.rest.library.activiti.Definition" parent="activitiSvc" scope="singleton"/>
+	<bean id="activitiInstanceSvc" class="com.burritopos.server.rest.library.activiti.Instance" parent="activitiSvc" scope="singleton"/>
+	<bean id="activitiUserTaskSvc" class="com.burritopos.server.rest.library.activiti.UserTask" parent="activitiSvc" scope="singleton"/>
 
 	<!-- com.burritopos.server.rest.utilities -->
     <bean id="applicationContextUtils" class="com.burritopos.server.rest.utilities.ApplicationContextUtils" scope="singleton"/>

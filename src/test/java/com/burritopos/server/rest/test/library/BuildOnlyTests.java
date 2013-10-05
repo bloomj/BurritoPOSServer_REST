@@ -2,18 +2,18 @@ package com.burritopos.server.rest.test.library;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+import org.junit.experimental.categories.Categories;
+import org.junit.experimental.categories.Categories.IncludeCategory;
 import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
-import com.burritopos.server.rest.test.library.activiti.WorkflowActivitiTest;
+import com.burritopos.server.rest.test.BuildTests;
 
-@RunWith(Suite.class)
+@RunWith(Categories.class)
+@IncludeCategory(BuildTests.class)
 @SuiteClasses({ 
-	BurritoServerTest.class,
-	WorkflowActivitiTest.class
-	})
-    public class CoreTests {
+	AllTests.class })
+    public class BuildOnlyTests {
 
     @BeforeClass 
     public static void setUpClass() {      

@@ -36,7 +36,7 @@
     <aspectj.version>1.7.3</aspectj.version>
     <slf4j.version>1.7.5</slf4j.version>
     <spring.security.oauth.version>1.0.5.RELEASE</spring.security.oauth.version>
-    <activiti.version>5.13</activiti.version>
+    <activiti.version>5.12</activiti.version>
     <postgresql.version>9.2-1002.jdbc4</postgresql.version>
     <springintegration.version>2.2.3.RELEASE</springintegration.version>
     <springamqp.version>1.2.0.RELEASE</springamqp.version>
@@ -554,7 +554,7 @@
                 </dependencies>
                 <configuration>
                     <includes>
-                        <include>**/AllTests.java</include>
+                        <include>**/BuildOnlyTests.java</include>
                     </includes>
                 </configuration>
             </plugin>

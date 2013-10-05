@@ -15,7 +15,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.node.ObjectNode;
-import org.springframework.beans.factory.annotation.Autowired;
+//import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
@@ -34,18 +34,20 @@ public class GroupManager extends GroupEntityManager {
     private static final Random rand = new Random();
     private ObjectMapper mapper;
     
-    @Autowired
+    //@Autowired --> AutoWired won't work
     private IGroupSvc groupSvc;
     
-    @Autowired
+    //@Autowired --> AutoWired won't work
     private IUserSvc userSvc;
     
     /**
      * Constructor
      * @throws IOException
      */
-    public GroupManager() {
+    public GroupManager(IGroupSvc groupSvc, IUserSvc userSvc) {
     	mapper = new ObjectMapper();
+    	this.groupSvc = groupSvc;
+    	this.userSvc = userSvc;
     }
 
     /**
@@ -119,10 +121,20 @@ public class GroupManager extends GroupEntityManager {
     	
     	try {
 	        if (StringUtils.isNotEmpty(query.getId())) {
+	        	dLog.trace("Querying for groups that have criteria | ID: " + query.getId());
+	        	if(groupSvc == null) {
+	        		dLog.error("My bad");
+	        	}
+	        	com.burritopos.server.domain.Group g = groupSvc.getGroup(Integer.parseInt(query.getId()));
+	        	if(g == null) {
+	        		dLog.error("Unable to get group");
+	        	}
 	            groups.add(IdentityUtils.convertGroupType(groupSvc.getGroup(new Integer(query.getId()))));
 	        } else if (StringUtils.isNotEmpty(query.getName())) {
+	        	dLog.trace("Querying for groups that have criteria | Name: " + query.getName());
 	        	groups.add(IdentityUtils.convertGroupType(groupSvc.getGroup(query.getName())));
 	        } else if (StringUtils.isNotEmpty(query.getUserId())) {
+	        	dLog.trace("Querying for groups that have criteria | User ID: " + query.getUserId());
 	            for(Integer i : userSvc.getUser(new Integer(query.getUserId())).getGroupId()) {
 	            	groups.add(IdentityUtils.convertGroupType(groupSvc.getGroup(i)));
 	            }

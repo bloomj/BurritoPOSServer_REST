@@ -1,4 +1,4 @@
-package com.burritopos.server.rest.test.library;
+package com.burritopos.server.rest.test.library.activiti;
 
 import org.apache.commons.io.IOUtils;
 import org.codehaus.jackson.JsonNode;
@@ -17,9 +17,13 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-import com.burritopos.server.rest.library.WorkflowActiviti;
+import com.burritopos.server.rest.library.activiti.Definition;
+import com.burritopos.server.rest.library.activiti.Instance;
+import com.burritopos.server.rest.library.activiti.UserTask;
+import com.burritopos.server.rest.library.activiti.WorkflowActiviti;
 import com.burritopos.server.rest.test.BuildTests;
 import com.burritopos.server.rest.test.IntegrationTests;
+import com.burritopos.server.rest.test.library.BaseTest;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -43,6 +47,15 @@ import java.util.Map;
 public class WorkflowActivitiTest extends BaseTest {
     @Autowired
     protected WorkflowActiviti activitiSvc;
+    
+    @Autowired
+    protected Definition activitiDefinitionSvc;
+    
+    @Autowired
+    protected Instance activitiInstanceSvc;
+    
+    @Autowired
+    protected UserTask activitiUserTaskSvc;
 
     // global var for test cleanup
     protected String deploymentId;
@@ -114,7 +127,7 @@ public class WorkflowActivitiTest extends BaseTest {
         deploymentId = createDefinition("xml", "DailySalesReport.bpmn20.xml");
 
         // get ProcessDefinitionId
-        processDefinitionId = getProcessDefinitionId(testUser.getUserName(), "DailySalesReport", deploymentId, "");
+        processDefinitionId = getProcessDefinitionId(testUser.getId().toString(), "DailySalesReport", deploymentId, "");
         System.out.println("Got processDefinitionId: " + processDefinitionId);
 
         // get rendered form
@@ -172,7 +185,7 @@ public class WorkflowActivitiTest extends BaseTest {
         }
 
         // parameters are not used yet so null is acceptable for now
-        String responsePayload = activitiSvc.createProcessDefinition(null, rootNode.toString());
+        String responsePayload = activitiDefinitionSvc.createProcessDefinition(null, rootNode.toString());
         responseJson = mapper.readTree(responsePayload);
         System.out.println("Returned: " + responsePayload);
         System.out.println("   ");
@@ -196,7 +209,7 @@ public class WorkflowActivitiTest extends BaseTest {
      */
     protected void deleteDefinition(String deploymentId) throws Exception {
         // test for success
-    	activitiSvc.deleteProcessDefinition(deploymentId);
+    	activitiDefinitionSvc.deleteProcessDefinition(deploymentId);
     }
 
     /**
@@ -207,7 +220,7 @@ public class WorkflowActivitiTest extends BaseTest {
      */
     protected void createInstance(String deploymentId, ObjectNode formPropJson, int statusCode) throws Exception {
         // get ProcessDefinitionId
-        processDefinitionId = getProcessDefinitionId(testUser.getUserName(), "", deploymentId, "");
+        processDefinitionId = getProcessDefinitionId(testUser.getId().toString(), "", deploymentId, "");
         System.out.println("Got processDefinitionId: " + processDefinitionId);
 
         ObjectNode rootNode = getStartFormProperties();
@@ -218,7 +231,7 @@ public class WorkflowActivitiTest extends BaseTest {
         embeddedArray.add(formPropJson);
         rootNode.put("StartFormProperties", embeddedArray);
 
-        String responsePayload = activitiSvc.createProcessInstance(testUser.getUserName(), rootNode.toString());
+        String responsePayload = activitiInstanceSvc.createProcessInstance(testUser.getUserName(), rootNode.toString());
         responseJson = mapper.readTree(responsePayload);
         System.out.println("Returned: " + responsePayload);
         System.out.println("   ");
@@ -232,7 +245,7 @@ public class WorkflowActivitiTest extends BaseTest {
      */
     protected void deleteInstance(String processInstanceId) throws Exception {
         // test for success
-    	activitiSvc.deleteProcessInstance(processInstanceId);
+    	activitiInstanceSvc.deleteProcessInstance(processInstanceId);
     }
 
     /**
@@ -249,7 +262,7 @@ public class WorkflowActivitiTest extends BaseTest {
 
         // test we have the newly created process definition
         System.out.println("Getting process definition list for user: " + userId + " | definition types: " + definitionType + " | candidate group: " + candidateGroup);
-        String responsePayload = activitiSvc.getProcessDefinitionList(userId, definitionType);
+        String responsePayload = activitiDefinitionSvc.getProcessDefinitionList(userId, definitionType);
         System.out.println("Response: " + responsePayload);
         responseJson = mapper.readTree(responsePayload);
 
@@ -295,7 +308,7 @@ public class WorkflowActivitiTest extends BaseTest {
         String processInstanceId = "";
 
         // test we have the newly created process instance
-        String responsePayload = activitiSvc.getProcessInstanceList();
+        String responsePayload = activitiInstanceSvc.getProcessInstanceList();
         responseJson = mapper.readTree(responsePayload);
         System.out.println("Returned: " + responsePayload);
         System.out.println("   ");
@@ -352,7 +365,7 @@ public class WorkflowActivitiTest extends BaseTest {
         params.put("Type", type);
 
         // test we have newly created task instance
-        String responsePayload = activitiSvc.getTaskInstanceList(params);
+        String responsePayload = activitiUserTaskSvc.getTaskInstanceList(params);
         responseJson = mapper.readTree(responsePayload);
         System.out.println("Returned: " + responsePayload);
         System.out.println("   ");
@@ -417,7 +430,7 @@ public class WorkflowActivitiTest extends BaseTest {
         deploymentId = createDefinition("xml", bpmnName);
 
         // get ProcessDefinitionId
-        processDefinitionId = getProcessDefinitionId(testUser.getUserName(), "DailySalesReport", deploymentId, "");
+        processDefinitionId = getProcessDefinitionId(testUser.getId().toString(), "DailySalesReport", deploymentId, "");
         System.out.println("Got processDefinitionId: " + processDefinitionId);
         System.out.println("   ");
 
@@ -448,7 +461,7 @@ public class WorkflowActivitiTest extends BaseTest {
         rootNode.put("UserId", testUser.getUserName());
         rootNode.put("GroupId", testUser.getId());
 
-        String responsePayload = activitiSvc.updateTask(taskId, null, rootNode.toString());
+        String responsePayload = activitiUserTaskSvc.updateTask(taskId, null, rootNode.toString());
         responseJson = mapper.readTree(responsePayload);
         
         //ArrayNode definitionList = (ArrayNode) responseJson.get("TaskInstanceClaimedList");
@@ -469,7 +482,7 @@ public class WorkflowActivitiTest extends BaseTest {
         embeddedArray.add(formPropJson);
         rootNode.put("TaskFormProperties", embeddedArray);
 
-        responsePayload = activitiSvc.updateTask(taskId, null, rootNode.toString());
+        responsePayload = activitiUserTaskSvc.updateTask(taskId, null, rootNode.toString());
         responseJson = mapper.readTree(responsePayload);
 
         //definitionList = (ArrayNode) responseJson.get("TaskInstanceCompletedList");
