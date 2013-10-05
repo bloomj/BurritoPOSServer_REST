@@ -11,11 +11,11 @@ import java.io.IOException;
  *
  */
 public class RequestFilter implements Filter {
-    private static Logger logger = Logger.getLogger(RequestFilter.class);
+    private static Logger dLog = Logger.getLogger(RequestFilter.class);
 
     @Override
     public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain) throws IOException, ServletException {
-        logger.trace("Doing some filtering");
+        dLog.trace("Doing some filtering");
 
         // TODO: do any pre-processing of the incoming requests to the REST services here
         

@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:activiti="http://activiti.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://www.activiti.org/test">
+  <process id="DailySalesReport" name="DailySalesReport" isExecutable="true" activiti:candidateStarterGroups="ROLE_USER">
+    <extensionElements>
+      <activiti:executionListener event="start" delegateExpression="${stateTransitionListener}"></activiti:executionListener>
+      <activiti:executionListener event="end" delegateExpression="${stateTransitionListener}"></activiti:executionListener>
+    </extensionElements>
+    <startEvent id="startevent1" name="Start">
+      <extensionElements>
+        <activiti:formProperty id="State" name="State" type="string" required="true"></activiti:formProperty>
+        <activiti:formProperty id="id" name="name" type="enum">
+          <activiti:value id="EnumId1" name="EnumName1"></activiti:value>
+          <activiti:value id="EnumId2" name="EnumName2"></activiti:value>
+        </activiti:formProperty>
+      </extensionElements>
+    </startEvent>
+    <userTask id="usertaskVerify" name="Verify Sales" activiti:candidateGroups="Group3">
+      <documentation>Write monthly financial report for publication to shareholders.</documentation>
+    </userTask>
+    <endEvent id="endevent1" name="End"></endEvent>
+    <sequenceFlow id="flow8" sourceRef="usertaskVerify" targetRef="servicetaskNotifyCompletion"></sequenceFlow>
+    <serviceTask id="servicetaskNotifyCompletion" name="Notify Completion" activiti:delegateExpression="${workflowProcessDefinitionInstantiate}"></serviceTask>
+    <sequenceFlow id="flow10" sourceRef="servicetaskNotifyCompletion" targetRef="endevent1"></sequenceFlow>
+    <userTask id="userTaskSubmit" name="Submit Sales"></userTask>
+    <sequenceFlow id="flow11" sourceRef="startevent1" targetRef="userTaskSubmit"></sequenceFlow>
+    <sequenceFlow id="flow12" sourceRef="userTaskSubmit" targetRef="usertaskVerify"></sequenceFlow>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_DailySalesReport">
+    <bpmndi:BPMNPlane bpmnElement="DailySalesReport" id="BPMNPlane_DailySalesReport">
+      <bpmndi:BPMNShape bpmnElement="startevent1" id="BPMNShape_startevent1">
+        <omgdc:Bounds height="35.0" width="35.0" x="90.0" y="240.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="endevent1" id="BPMNShape_endevent1">
+        <omgdc:Bounds height="35.0" width="35.0" x="928.0" y="240.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="usertaskReject" id="BPMNShape_usertaskReject">
+        <omgdc:Bounds height="55.0" width="105.0" x="445.0" y="294.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="servicetaskSubmitForValidation" id="BPMNShape_servicetaskSubmitForValidation">
+        <omgdc:Bounds height="79.0" width="105.0" x="670.0" y="228.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="usertaskVerify" id="BPMNShape_usertaskVerify">
+        <omgdc:Bounds height="55.0" width="105.0" x="440.0" y="230.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="servicetaskNotifyCompletion" id="BPMNShape_servicetaskNotifyCompletion">
+        <omgdc:Bounds height="79.0" width="105.0" x="670.0" y="218.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="userTaskSubmit" id="BPMNShape_userTaskSubmit">
+        <omgdc:Bounds height="55.0" width="105.0" x="240.0" y="230.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge bpmnElement="flow8" id="BPMNEdge_flow8">
+        <omgdi:waypoint x="545.0" y="257.0"></omgdi:waypoint>
+        <omgdi:waypoint x="669.0" y="258.0"></omgdi:waypoint>
+        <omgdi:waypoint x="670.0" y="257.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow10" id="BPMNEdge_flow10">
+        <omgdi:waypoint x="775.0" y="257.0"></omgdi:waypoint>
+        <omgdi:waypoint x="928.0" y="257.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow11" id="BPMNEdge_flow11">
+        <omgdi:waypoint x="125.0" y="257.0"></omgdi:waypoint>
+        <omgdi:waypoint x="240.0" y="257.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow12" id="BPMNEdge_flow12">
+        <omgdi:waypoint x="345.0" y="257.0"></omgdi:waypoint>
+        <omgdi:waypoint x="440.0" y="257.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

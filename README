@@ -15,7 +15,9 @@ Currently demonstrates
 * JUnit
 * Spring
 * Jersey (JAX-RS)
-* OAuth
+* OAuth (via Spring Security)
+* Mongo (NoSQL)
+* Activiti (PostGRES backend)
 * Yammer.metrics
 * JavaDoc
   
@@ -23,15 +25,23 @@ TODO
 -------------------------
 * Update/Complete unit tests
 * Update/Complete documentation
-* Update requirements to demonstrate Activiti, AMQP, and possibly Solr
+* Update requirements to demonstrate Activiti, RabbitMQ (AMQP), and Solr or ElasticSearch
 
 Notes
 -------------------------
+* To be deployed to Apache Tomcat
+
+Be sure the CATALINA_HOME environment variable is correctly configured before building and double-check Tomcat specific variables in the pom.xml.  To deploy:
+
+```mvn clean build```
+
 * BurritoPOSServer.jar installed locally: 
 
 ```mvn install:install-file -Dfile=BurritoPOSServer.jar -DgroupId=com.burritopos.server -DartifactId=neatoBurrito.server -Dversion=1.0.0-SNAPSHOT -Dpackaging=jar```
 
-BurritoPOS web service utilizes the [yammer.metrics] [1] library to provide service metrics and diagnostics.
+Activiti will automatically setup the necessary schema so no pre-initialization of tables are necessary.
+
+BurritoPOS web service utilizes the [yammer.metrics](http://metrics.codahale.com/) library to provide service metrics and diagnostics.
 	
 The following servlets are initialized with the burritopos web service and can be accessed by using the relative URL shown.
 		
@@ -43,5 +53,3 @@ The following servlets are initialized with the burritopos web service and can b
  	* /burritopos-service/metrics
  * Ping servlet
  	* /burritopos-service/ping
- 
-   [1]: http://metrics.codahale.com/        "yammer.metrics"

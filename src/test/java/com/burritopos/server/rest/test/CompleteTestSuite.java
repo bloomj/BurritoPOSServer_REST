@@ -11,7 +11,8 @@ import org.junit.runners.Suite.SuiteClasses;
 	com.burritopos.server.rest.test.metrics.AllTests.class,
     com.burritopos.server.rest.test.webresource.AllTests.class,
     com.burritopos.server.rest.test.library.AllTests.class,
-    com.burritopos.server.rest.test.filter.AllTests.class
+    com.burritopos.server.rest.test.filter.AllTests.class,
+    com.burritopos.server.rest.test.identity.AllTests.class
     })
 public class CompleteTestSuite {
 

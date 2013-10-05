@@ -22,7 +22,7 @@ import com.yammer.metrics.util.DeadlockHealthCheck;
  * Initialize yammer.metrics health checks on webapp startup
  */
 public class ContextListener implements ServletContextListener {
-	private static Logger logger = Logger.getLogger(ContextListener.class);
+	private static Logger dLog = Logger.getLogger(ContextListener.class);
 	
     private static String graphiteServerIP;
     private static int graphiteServerPort;
@@ -33,14 +33,14 @@ public class ContextListener implements ServletContextListener {
 
         Set<Class<? extends HealthCheck>> healthChecks = reflections.getSubTypesOf(HealthCheck.class);
         for(Class<? extends Object> check  : healthChecks) {
-        	logger.trace("Registering " + check.getSimpleName() + " with metrics HealthChecks singleton");
+        	dLog.trace("Registering " + check.getSimpleName() + " with metrics HealthChecks singleton");
             try {
 				HealthChecks.register((HealthCheck) check.newInstance());
 			} catch (InstantiationException | IllegalAccessException e) {
-				logger.trace("Unable to register " + check.getSimpleName(), e);
+				dLog.trace("Unable to register " + check.getSimpleName(), e);
 			}
         }
-        logger.trace("Registering DeadlockHealthCheck with metrics HealthChecks singleton");
+        dLog.trace("Registering DeadlockHealthCheck with metrics HealthChecks singleton");
         HealthChecks.register(new DeadlockHealthCheck());
 
         try {
@@ -50,15 +50,15 @@ public class ContextListener implements ServletContextListener {
 	        if (graphiteServerIP != null && BurritoPOSUtils.getProperty("graphite.server.port") != null) {
 	        	try {
 	        		graphiteServerPort = Integer.parseInt(BurritoPOSUtils.getProperty("graphite.server.port"));
-	        		logger.trace("Initializing Graphite stream: " + graphiteServerIP + ":" + graphiteServerPort);
+	        		dLog.trace("Initializing Graphite stream: " + graphiteServerIP + ":" + graphiteServerPort);
 	                GraphiteReporter.enable(1, TimeUnit.MINUTES, graphiteServerIP, graphiteServerPort);
 	            } catch (Exception e) {
-	            	logger.error("Error initializing GraphiteReporter", e);
+	            	dLog.error("Error initializing GraphiteReporter", e);
 	            }
 	        }
         }
         catch(Exception e) {
-        	logger.error("Error initializing BurritoPOS Service", e);
+        	dLog.error("Error initializing BurritoPOS Service", e);
         }
     }
 

@@ -3,15 +3,12 @@
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:aop="http://www.springframework.org/schema/aop"
        xmlns:context="http://www.springframework.org/schema/context"
-       xmlns:metrics="http://www.ryantenney.com/schema/metrics"
        xsi:schemaLocation="http://www.springframework.org/schema/beans 
        						http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
        						http://www.springframework.org/schema/context 
 							http://www.springframework.org/schema/context/spring-context-3.1.xsd
 							http://www.springframework.org/schema/aop 
-							http://www.springframework.org/schema/aop/spring-aop.xsd
-							http://www.ryantenney.com/schema/metrics 
-           					META-INF/xsd/metrics.xsd">
+							http://www.springframework.org/schema/aop/spring-aop.xsd">
 
     <!-- ========================= Dependencies ==================================== -->
 
@@ -28,21 +25,28 @@
 
 	<aop:aspectj-autoproxy/>
 
+	<!-- Import properties -->
+	<context:property-placeholder location="classpath:com/burritopos/server/rest/webresource/burritoposserver.properties" ignore-unresolvable="true"/>
+
 	<!-- OAuth -->
     <import resource="oauth.xml" />
 
-	<!-- yammer.metrics beans -->
-	<metrics:metrics-registry id="metrics"/>
-    <metrics:health-check-registry id="health"/>
+	<!-- Activiti -->
+	<import resource="activiti.xml"/>
 
-    <metrics:annotation-driven metrics-registry="metrics" health-check-registry="health" proxy-target-class="true"/>
+	<!-- yammer.metrics -->
+    <import resource="yammerMetrics.xml" />
 
-    <metrics:jmx-reporter id="metricsJmxReporter" metrics-registry="metrics"/>
-    <!-- end yammer.metrics beans -->
+	<!-- com.burritopos.server.service.dao -->
+	<bean id="userSvc" class="com.burritopos.server.service.dao.mongo.UserSvcImpl" scope="singleton"/>
+	<bean id="groupSvc" class="com.burritopos.server.service.dao.mongo.GroupSvcImpl" scope="singleton"/>
 
 	<!-- com.burritopos.server.rest.library -->
-	<bean id="userSvc" class="com.burritopos.server.service.dao.mongo.UserSvcImpl" scope="singleton"/>
+	<bean id="activitiSvc" class="com.burritopos.server.rest.library.WorkflowActiviti" scope="singleton"/>
 	<bean id="burritoServer" class="com.burritopos.server.rest.library.BurritoServer" scope="singleton"/>
+
+	<!-- com.burritopos.server.rest.utilities -->
+    <bean id="applicationContextUtils" class="com.burritopos.server.rest.utilities.ApplicationContextUtils" scope="singleton"/>
 
 	<!-- com.burritopos.server.rest.webresource -->
 	<bean id="serverService" class="com.burritopos.server.rest.webresource.ServerService" scope="singleton">

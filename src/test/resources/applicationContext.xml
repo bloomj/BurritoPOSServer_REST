@@ -24,13 +24,31 @@
  	</context:component-scan>
 
 	<aop:aspectj-autoproxy/>
+	
+	<!-- Import properties -->
+	<context:property-placeholder location="classpath:com/burritopos/server/rest/webresource/burritoposserver.properties" ignore-unresolvable="true"/>
 
 	<!-- OAuth -->
     <import resource="oauth.xml" />
+    
+    <!-- Activiti -->
+	<import resource="activiti.xml"/>
+
+	<!-- com.burritopos.server.service.dao -->
+	<bean id="userSvc" class="com.burritopos.server.service.dao.mongo.UserSvcImpl" scope="singleton"/>
+	<bean id="groupSvc" class="com.burritopos.server.service.dao.mongo.GroupSvcImpl" scope="singleton"/>
+
+	<!-- com.burritopos.server.rest.identity -->
+	<bean id="groupManager" class="com.burritopos.server.rest.identity.group.GroupManager" scope="singleton"/>
+	<bean id="membershipManager" class="com.burritopos.server.rest.identity.membership.MembershipManager" scope="singleton"/>
+	<bean id="userManager" class="com.burritopos.server.rest.identity.user.UserManager" scope="singleton"/>
 
 	<!-- com.burritopos.server.rest.library -->
-	<bean id="userSvc" class="com.burritopos.server.service.dao.mongo.UserSvcImpl" scope="singleton"/>
+	<bean id="activitiSvc" class="com.burritopos.server.rest.library.WorkflowActiviti" scope="singleton"/>
 	<bean id="burritoServer" class="com.burritopos.server.rest.library.BurritoServer" scope="singleton"/>
+
+	<!-- com.burritopos.server.rest.utilities -->
+    <bean id="applicationContextUtils" class="com.burritopos.server.rest.utilities.ApplicationContextUtils" scope="singleton"/>
 
 	<!-- com.burritopos.server.rest.webresource -->
 	<bean id="serverService" class="com.burritopos.server.rest.webresource.ServerService" scope="singleton">
