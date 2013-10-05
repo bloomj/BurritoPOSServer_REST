@@ -1,0 +1,102 @@
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xmlns:activiti="http://activiti.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+             xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI"
+             typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath"
+             targetNamespace="http://www.activiti.org/test">
+    <process id="Draft" name="Draft" isExecutable="true">
+        <extensionElements>
+            <activiti:executionListener delegateExpression="${workflowStateTransitionListener}" event="start"/>
+            <activiti:executionListener delegateExpression="${workflowStateTransitionListener}" event="end"/>
+        </extensionElements>
+        <startEvent id="startevent1" name="Start">
+            <extensionElements>
+            	<activiti:formProperty id="State" name="State" required="true" type="string"/>
+            	<activiti:formProperty id="CDFURI" name="CDFURI" required="true" type="string"/>
+            	<activiti:formProperty id="ResourceURI" name="ResourceURI" required="true" type="string"/>
+                <activiti:formProperty id="id" name="name" type="enum">
+                  <activiti:value id="EnumId1" name="EnumName1"></activiti:value>
+                  <activiti:value id="EnumId2" name="EnumName2"></activiti:value>
+                </activiti:formProperty>
+            </extensionElements>
+        </startEvent>
+        <exclusiveGateway id="exclusivegateway1" name="Exclusive Gateway"></exclusiveGateway>
+        <sequenceFlow id="flow1" sourceRef="startevent1" targetRef="exclusivegateway1">
+            <extensionElements>
+                <activiti:executionListener delegateExpression="${workflowStateTransitionListener}" event="take"/>
+            </extensionElements>
+        </sequenceFlow>
+        <userTask id="usertaskDraft" name="Draft" activiti:candidateGroups="Group1">
+            <extensionElements>
+                <activiti:taskListener delegateExpression="${workflowStateTransitionListener}" event="create"/>
+                <activiti:taskListener delegateExpression="${workflowStateTransitionListener}" event="assignment"/>
+                <activiti:taskListener delegateExpression="${workflowStateTransitionListener}" event="complete"/>
+                <activiti:formProperty id="usertaskDraftenum" name="usertaskDraftenum" type="enum">
+                  <activiti:value id="EnumId1" name="EnumName1"></activiti:value>
+                  <activiti:value id="EnumId2" name="EnumName2"></activiti:value>
+                </activiti:formProperty>
+            </extensionElements>
+        </userTask>
+        <userTask id="usertaskReject" name="Reject" activiti:candidateGroups="Group3"></userTask>
+        <sequenceFlow id="flow3" name="Reject" sourceRef="exclusivegateway1" targetRef="usertaskReject">
+            <conditionExpression xsi:type="tFormalExpression"><![CDATA[${State =="Reject"}]]></conditionExpression>
+        </sequenceFlow>
+        <endEvent id="endevent1" name="End"></endEvent>
+    </process>
+    <bpmndi:BPMNDiagram id="BPMNDiagram_Draft">
+        <bpmndi:BPMNPlane bpmnElement="Draft" id="BPMNPlane_Draft">
+            <bpmndi:BPMNShape bpmnElement="startevent1" id="BPMNShape_startevent1">
+                <omgdc:Bounds height="35.0" width="35.0" x="170.0" y="240.0"></omgdc:Bounds>
+            </bpmndi:BPMNShape>
+            <bpmndi:BPMNShape bpmnElement="exclusivegateway1" id="BPMNShape_exclusivegateway1">
+                <omgdc:Bounds height="40.0" width="40.0" x="320.0" y="237.0"></omgdc:Bounds>
+            </bpmndi:BPMNShape>
+            <bpmndi:BPMNShape bpmnElement="endevent1" id="BPMNShape_endevent1">
+                <omgdc:Bounds height="35.0" width="35.0" x="1130.0" y="250.0"></omgdc:Bounds>
+            </bpmndi:BPMNShape>
+            <bpmndi:BPMNShape bpmnElement="usertaskDraft" id="BPMNShape_usertaskDraft">
+                <omgdc:Bounds height="55.0" width="105.0" x="445.0" y="178.0"></omgdc:Bounds>
+            </bpmndi:BPMNShape>
+            <bpmndi:BPMNShape bpmnElement="usertaskReject" id="BPMNShape_usertaskReject">
+                <omgdc:Bounds height="55.0" width="105.0" x="445.0" y="294.0"></omgdc:Bounds>
+            </bpmndi:BPMNShape>
+            <bpmndi:BPMNShape bpmnElement="servicetaskSubmitForValidation"
+                              id="BPMNShape_servicetaskSubmitForValidation">
+                <omgdc:Bounds height="79.0" width="105.0" x="670.0" y="228.0"></omgdc:Bounds>
+            </bpmndi:BPMNShape>
+            <bpmndi:BPMNEdge bpmnElement="flow1" id="BPMNEdge_flow1">
+                <omgdi:waypoint x="205.0" y="257.0"></omgdi:waypoint>
+                <omgdi:waypoint x="320.0" y="257.0"></omgdi:waypoint>
+            </bpmndi:BPMNEdge>
+            <bpmndi:BPMNEdge bpmnElement="flow3" id="BPMNEdge_flow3">
+                <omgdi:waypoint x="340.0" y="277.0"></omgdi:waypoint>
+                <omgdi:waypoint x="340.0" y="323.0"></omgdi:waypoint>
+                <omgdi:waypoint x="445.0" y="321.0"></omgdi:waypoint>
+                <bpmndi:BPMNLabel>
+                    <omgdc:Bounds height="14.0" width="100.0" x="10.0" y="0.0"></omgdc:Bounds>
+                </bpmndi:BPMNLabel>
+            </bpmndi:BPMNEdge>
+            <bpmndi:BPMNEdge bpmnElement="flow7" id="BPMNEdge_flow7">
+                <omgdi:waypoint x="340.0" y="237.0"></omgdi:waypoint>
+                <omgdi:waypoint x="340.0" y="205.0"></omgdi:waypoint>
+                <omgdi:waypoint x="445.0" y="205.0"></omgdi:waypoint>
+                <bpmndi:BPMNLabel>
+                    <omgdc:Bounds height="14.0" width="100.0" x="10.0" y="0.0"></omgdc:Bounds>
+                </bpmndi:BPMNLabel>
+            </bpmndi:BPMNEdge>
+            <bpmndi:BPMNEdge bpmnElement="flow8" id="BPMNEdge_flow8">
+                <omgdi:waypoint x="550.0" y="321.0"></omgdi:waypoint>
+                <omgdi:waypoint x="725.0" y="321.0"></omgdi:waypoint>
+                <omgdi:waypoint x="722.0" y="307.0"></omgdi:waypoint>
+            </bpmndi:BPMNEdge>
+            <bpmndi:BPMNEdge bpmnElement="flow9" id="BPMNEdge_flow9">
+                <omgdi:waypoint x="550.0" y="205.0"></omgdi:waypoint>
+                <omgdi:waypoint x="730.0" y="205.0"></omgdi:waypoint>
+                <omgdi:waypoint x="722.0" y="228.0"></omgdi:waypoint>
+            </bpmndi:BPMNEdge>
+            <bpmndi:BPMNEdge bpmnElement="flow10" id="BPMNEdge_flow10">
+                <omgdi:waypoint x="775.0" y="267.0"></omgdi:waypoint>
+                <omgdi:waypoint x="1130.0" y="267.0"></omgdi:waypoint>
+            </bpmndi:BPMNEdge>
+        </bpmndi:BPMNPlane>
+    </bpmndi:BPMNDiagram>
+</definitions>

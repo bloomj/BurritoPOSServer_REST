@@ -1,7 +1,5 @@
 package com.burritopos.server.rest.security.dao;
 
-import java.util.ArrayList;
-
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.authority.AuthorityUtils;
@@ -11,6 +9,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import com.burritopos.server.rest.library.BurritoServer;
+import com.burritopos.server.service.dao.IGroupSvc;
 import com.burritopos.server.service.dao.IUserSvc;
 import com.yammer.metrics.Metrics;
 import com.yammer.metrics.core.Counter;
@@ -20,7 +19,8 @@ public class OAuthMongoDAO implements UserDetailsService {
 	
 	@Autowired
     private IUserSvc userSvc;
-    private ArrayList<com.burritopos.server.domain.User> users;
+	@Autowired
+	private IGroupSvc groupSvc;
     
     // metrics
     protected final Counter loginCounter = Metrics.newCounter(BurritoServer.class, "oauth-login-counter");
@@ -30,28 +30,25 @@ public class OAuthMongoDAO implements UserDetailsService {
 		dLog.trace("Getting OAuth details for: " + username);
 		UserDetails user = null;
 		
-    	// get all users
-    	try {
-			users = userSvc.getAllUsers();
-		} catch (Exception e2) {
-			dLog.error("Unable to get all users", e2);
-		}
-    	dLog.trace("Got " + users.size() + " users");
-		
-    	for(int n=0; n<users.size(); n++) {
-    		com.burritopos.server.domain.User curUser = users.get(n);
-        	dLog.trace("Stored user: " + curUser.getUserName() + " | stored pass: " + curUser.getPassword());
-            if(curUser.getUserName().equals(username)) {
-				// default all users to ROLE_USER for now
-				user = new User(username, curUser.getPassword(), true, true, true, true, AuthorityUtils.createAuthorityList("ROLE_USER"));
-				loginCounter.inc();
+		try {
+			com.burritopos.server.domain.User tUser = userSvc.getUser(username);
+			if(tUser != null && tUser.validate()) {
+				// get all groups (e.g. roles)
+				String[] roles = new String[tUser.getGroupId().size()];
+				dLog.trace("Roles to add: " + tUser.getGroupId().size());
+				for(int i=0; i<tUser.getGroupId().size(); i++) {
+					roles[i] = groupSvc.getGroup(tUser.getGroupId().get(i)).getName();
+					dLog.trace("Added role: " + roles[i]);
+				}
 				
-				break;
-            }
-    	}
+				user = new User(username, tUser.getPassword(), true, true, true, true, AuthorityUtils.createAuthorityList(roles));
+				loginCounter.inc();
+			}
+		}
+		catch(Exception e) {
+			dLog.trace("Error in loadUserByUsername", e);
+		}
+		
 		return user;
 	}
-
-	
-
 }

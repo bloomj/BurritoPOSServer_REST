@@ -36,6 +36,12 @@
     <aspectj.version>1.7.3</aspectj.version>
     <slf4j.version>1.7.5</slf4j.version>
     <spring.security.oauth.version>1.0.5.RELEASE</spring.security.oauth.version>
+    <activiti.version>5.13</activiti.version>
+    <postgresql.version>9.2-1002.jdbc4</postgresql.version>
+    <springintegration.version>2.2.3.RELEASE</springintegration.version>
+    <springamqp.version>1.2.0.RELEASE</springamqp.version>
+    <rabbitmq.version>3.1.4</rabbitmq.version>
+    <commons-io.version>1.3.2</commons-io.version>
   </properties>
   
   <!-- Help control dependency versions in case of parent-child hierarchy -->
@@ -256,6 +262,70 @@
             <artifactId>aspectjrt</artifactId>
             <version>${aspectj.version}</version>
         </dependency>
+        <dependency>
+        	<groupId>org.activiti</groupId>
+            <artifactId>activiti-engine</artifactId>
+            <version>${activiti.version}</version>
+        </dependency>
+        <dependency>
+        	<groupId>org.activiti</groupId>
+            <artifactId>activiti-spring</artifactId>
+            <version>${activiti.version}</version>
+            <!-- spring-asm was pulled into core for spring 3.2.0.RELEASE so exclude it here -->
+            <exclusions>
+            	<exclusion>
+                	<artifactId>spring-asm</artifactId>
+                    <groupId>org.springframework</groupId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+        	<groupId>postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>${postgresql.version}</version>
+        </dependency>
+         
+		<!-- Dependencies for Spring AMQP -->
+        <dependency>
+            <groupId>org.springframework.integration</groupId>
+            <artifactId>spring-integration-core</artifactId>
+            <version>${springintegration.version}</version>
+            <scope>runtime</scope>
+       	</dependency>
+        <dependency>
+        	<groupId>org.springframework.integration</groupId>
+            <artifactId>spring-integration-event</artifactId>
+            <version>${springintegration.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+        	<groupId>org.springframework.integration</groupId>
+            <artifactId>spring-integration-amqp</artifactId>
+            <version>${springintegration.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+			<groupId>org.springframework.amqp</groupId>
+			<artifactId>spring-rabbit</artifactId>
+			<version>${springamqp.version}</version>
+		</dependency>    			 
+        <dependency>
+        	<groupId>org.springframework.amqp</groupId>
+            <artifactId>spring-amqp</artifactId>
+            <version>${springamqp.version}</version>
+        </dependency>
+        <dependency>
+        	<groupId>com.rabbitmq</groupId>
+            <artifactId>amqp-client</artifactId>
+            <version>${rabbitmq.version}</version>
+    	    <scope>runtime</scope>
+        </dependency>  
+		<!-- End Dependencies for Spring AMQP -->
+		<dependency>
+        	<groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>${commons-io.version}</version>
+        </dependency>
 	</dependencies>
   </dependencyManagement>
   
@@ -383,6 +453,51 @@
 	<dependency>
        	<groupId>org.aspectj</groupId>
         <artifactId>aspectjrt</artifactId>
+    </dependency>
+    <!-- Dependencies for Activiti -->
+    <dependency>
+    	<groupId>org.activiti</groupId>
+        <artifactId>activiti-engine</artifactId>
+    </dependency>
+    <dependency>
+    	<groupId>org.activiti</groupId>
+        <artifactId>activiti-spring</artifactId>
+   	</dependency>
+    <dependency>
+    	<groupId>postgresql</groupId>
+        <artifactId>postgresql</artifactId>
+    </dependency>
+    <!-- End Dependencies for Activiti -->
+         
+    <!-- Dependencies for Spring AMQP -->
+    <dependency>
+    	<groupId>org.springframework.integration</groupId>
+        <artifactId>spring-integration-core</artifactId>
+    </dependency>
+    <dependency>
+    	<groupId>org.springframework.integration</groupId>
+        <artifactId>spring-integration-event</artifactId>
+    </dependency>
+    <dependency>
+    	<groupId>org.springframework.integration</groupId>
+        <artifactId>spring-integration-amqp</artifactId>
+    </dependency>
+    <dependency>
+		<groupId>org.springframework.amqp</groupId>
+		<artifactId>spring-rabbit</artifactId>
+	</dependency>    			 
+    <dependency>
+        <groupId>org.springframework.amqp</groupId>
+        <artifactId>spring-amqp</artifactId>
+    </dependency>
+    <dependency>
+       	<groupId>com.rabbitmq</groupId>
+        <artifactId>amqp-client</artifactId>
+    </dependency>  
+	<!-- End Dependencies for Spring AMQP -->
+	<dependency>
+    	<groupId>commons-io</groupId>
+        <artifactId>commons-io</artifactId>
     </dependency>
   </dependencies>
   

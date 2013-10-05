@@ -1,8 +1,11 @@
 package com.burritopos.server.rest.test.webresource;
 
+import com.burritopos.server.domain.Group;
 import com.burritopos.server.domain.User;
 import com.burritopos.server.service.crypto.BCrypt;
+import com.burritopos.server.service.dao.IGroupSvc;
 import com.burritopos.server.service.dao.IUserSvc;
+import com.burritopos.server.service.dao.mongo.GroupSvcImpl;
 import com.burritopos.server.service.dao.mongo.UserSvcImpl;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
@@ -19,6 +22,7 @@ import org.junit.Rule;
 import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
 import org.junit.runner.RunWith;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.web.context.ContextLoaderListener;
@@ -44,13 +48,17 @@ public class BaseServiceCoreTest extends AbstractSpringAwareJerseyTest {
 	  };
 	};
 	
+	// Spring configuration
+    private static final String SPRING_CONFIG_DEFAULT = "applicationContext.xml";
+	
     public static final String PACKAGE_NAME = "com.burritopos.server.rest";
     protected ObjectNode rootNode;
     
     // test entities
     protected static IUserSvc userSvc;
+    protected static IGroupSvc groupSvc;
     protected static User tUser;
-    
+    protected static Group tGroup;
     
     /**
      * Sets up the necessary code to run the tests.
@@ -62,11 +70,33 @@ public class BaseServiceCoreTest extends AbstractSpringAwareJerseyTest {
         System.out.println("   ");
         System.out.println("   ");
         System.out.println("*** Setting up test class ***");
+
+        //Spring Framework IoC
+        ClassPathXmlApplicationContext beanfactory = null;
+        try {
+            beanfactory = new ClassPathXmlApplicationContext(SPRING_CONFIG_DEFAULT);
+            userSvc = (UserSvcImpl)beanfactory.getBean("userSvc");
+            groupSvc = (GroupSvcImpl)beanfactory.getBean("groupSvc");
+
+        } catch (Exception e) {
+        	System.out.println("Unable to set Spring bean");
+        	e.printStackTrace();
+        } finally {
+            if (beanfactory != null) {
+                beanfactory.close();
+            }
+        }
         
-        userSvc = new UserSvcImpl();
+        tGroup = new Group();
+        tGroup.setId(56);
+        tGroup.setName("ROLE_USER");
+        
+        groupSvc.storeGroup(tGroup);
+        assertNotNull(groupSvc.getGroup(tGroup.getId()));
         
         tUser = new User();
         tUser.setId(123);
+        tUser.addGroupId(56);
         tUser.setUserName("Test_User");
         tUser.setPassword(BCrypt.hashpw("password", BCrypt.gensalt()));
         
@@ -87,7 +117,10 @@ public class BaseServiceCoreTest extends AbstractSpringAwareJerseyTest {
 
         try {
         	userSvc.deleteUser(tUser.getId());
-        	assertNull(userSvc.getUser(tUser.getId()).getId());
+        	assertNull(userSvc.getUser(tUser.getId()).getUserName());
+        	
+        	groupSvc.deleteGroup(tGroup.getId());
+        	assertNull(groupSvc.getGroup(tGroup.getId()).getName());
         }
         catch(Exception e) {
         	fail(e.getMessage());
