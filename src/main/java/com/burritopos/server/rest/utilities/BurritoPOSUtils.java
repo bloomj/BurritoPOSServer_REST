@@ -20,9 +20,8 @@ import java.util.Properties;
 /**
  *
  */
-@SuppressWarnings("unused")
 public class BurritoPOSUtils {
-	private static Logger logger = Logger.getLogger(BurritoPOSUtils.class);
+	private static Logger dLog = Logger.getLogger(BurritoPOSUtils.class);
 	private static Map<String, String> properties = new HashMap<String, String>();
 	
 	static {
@@ -45,13 +44,13 @@ public class BurritoPOSUtils {
 		else {
 	    	// get burrito pos service properties
 	        Properties propList = new Properties();
-	        logger.trace("Loading burritoposserver.properties");
+	        dLog.trace("Loading burritoposserver.properties");
 
 	        propList.load(ServerService.class.getResourceAsStream("burritoposserver.properties"));
 	        propValue = propList.getProperty(propName);
 	        properties.put(propName, propValue);
 	            
-	        logger.trace("Got " + propName + " value: " + propValue);
+	        dLog.trace("Got " + propName + " value: " + propValue);
 		}
 		
 		return propValue;
@@ -70,5 +69,34 @@ public class BurritoPOSUtils {
             map.put(key, value);
         }
         return map;
+    }
+    
+	/**
+	* Writes temporary BPMN XML file out so it can be loaded as a process definition.
+	*
+	* @param bpmnXML
+	* @param fileName
+	* @throws IOException
+	*/	
+	public static void writeFile(String bpmnXML, String dir, String fileName) throws IOException {
+        BufferedWriter out = null;
+        try {
+        	dLog.trace("Dir: " + dir + " | fileName: " + fileName);
+            // ensure directory exists
+            File directoryExists = new File(dir);
+
+            if (!directoryExists.exists()) {
+                directoryExists.mkdirs();
+            }
+
+            out = new BufferedWriter(new FileWriter(dir + fileName));
+            out.write(bpmnXML);
+        } catch (IOException e) {
+        	dLog.error("Writing file " + fileName + " failed", e);
+        } finally {
+            if (out != null) {
+                out.close();
+            }
+        }
     }
 }

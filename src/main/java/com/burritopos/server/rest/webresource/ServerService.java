@@ -41,11 +41,12 @@ import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
  *
  */
 @Path("/")
+@SuppressWarnings("unused")
 public class ServerService {
-    private static Logger logger = Logger.getLogger(ServerService.class);    
+    private static Logger dLog = Logger.getLogger(ServerService.class);    
     protected ObjectMapper mapper;
     
-    private BurritoServer server;
+	private BurritoServer server;
 
     public void setServer(BurritoServer server) {
         this.server = server;
@@ -85,7 +86,7 @@ public class ServerService {
 		rootNode.put("Status", "Login has been deprecated in favor of OAuth");
     	return builder.status(Response.Status.GONE).entity(rootNode.toString()).build();
     	
-        /*logger.trace("Attempting to login");
+        /*dLog.trace("Attempting to login");
         
     	if (payload == null || payload.equals("")){
     		ResponseBuilderImpl builder = new ResponseBuilderImpl();

@@ -2,51 +2,29 @@ package com.burritopos.server.rest.test.library;
 
 import java.util.HashMap;
 
-import com.burritopos.server.domain.User;
 import com.burritopos.server.rest.library.BurritoServer;
-import com.burritopos.server.rest.test.BaseTestCase;
 import com.burritopos.server.rest.test.BuildTests;
-import com.burritopos.server.service.crypto.BCrypt;
-import com.burritopos.server.service.dao.IUserSvc;
 
-import org.codehaus.jackson.JsonNode;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.node.ObjectNode;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
-import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 
 /**
  * Runner class for the Burrito POS service library functionality.
  *
  */
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration("classpath:applicationContext.xml")
-public class BurritoServerTest extends BaseTestCase {
+public class BurritoServerTest extends BaseTest {
 	@Autowired
     private BurritoServer server;
-    private ObjectMapper mapper;
-    private ObjectNode rootNode;
-    private JsonNode responseJson;
-
-    // test entities
-    @Autowired
-    private IUserSvc userSvc;
-    private User tUser;
 	
     /**
      * Initializes the test case.
      */
     public BurritoServerTest() {
         super();
-        
-        mapper = new ObjectMapper();
     }
 
     /**
@@ -57,14 +35,6 @@ public class BurritoServerTest extends BaseTestCase {
     @Before
     public void initCommonResources() throws Exception {
         super.initCommonResources();
-        
-        tUser = new User();
-        tUser.setId(123);
-        tUser.setUserName("Test_User");
-        tUser.setPassword(BCrypt.hashpw("password", BCrypt.gensalt()));
-        
-        userSvc.storeUser(tUser);
-        assertNotNull(userSvc.getUser(tUser.getId()));
     }
 
     /**
@@ -75,9 +45,6 @@ public class BurritoServerTest extends BaseTestCase {
     @After
     public void tearDownCommonResources() throws Exception {
         super.tearDownCommonResources();
-        
-        userSvc.deleteUser(tUser.getId());
-    	assertNull(userSvc.getUser(tUser.getId()).getId());
     }
 
     /**
@@ -90,7 +57,7 @@ public class BurritoServerTest extends BaseTestCase {
     public void testDoLogin() throws Exception {
     	// build payload
     	rootNode = mapper.createObjectNode();
-    	rootNode.put("Username", tUser.getUserName());
+    	rootNode.put("Username", testUser.getUserName());
     	rootNode.put("Password", "password");
     	
     	String response = server.doLogin(new HashMap<String, String>(), rootNode.toString());

@@ -22,12 +22,13 @@ import org.apache.log4j.Logger;
  */
 @SuppressWarnings("unused")
 public class MongoDBHealthCheck extends HealthCheck {
-    private static Logger logger = Logger.getLogger(MongoDBHealthCheck.class);
+    private static Logger dLog = Logger.getLogger(MongoDBHealthCheck.class);
     private String version = "";
 
-    private static String mongodbURL;
-    private static String mongodbUser;
-    private static String mongodbPassword;
+    private static String MONGO_IP;
+    private static String MONGO_USER;
+    private static String MONGO_PASSWORD;
+    private static String MONGO_DB;
     
     /**
      * Creates HealthCheck instance for MongoDB database.
@@ -36,9 +37,10 @@ public class MongoDBHealthCheck extends HealthCheck {
     public MongoDBHealthCheck() throws IOException {
         super("mongodb Database");
         	
-        mongodbURL = BurritoPOSUtils.getProperty("mongo.url");
-        mongodbUser = BurritoPOSUtils.getProperty("mongo.user");
-        mongodbPassword = BurritoPOSUtils.getProperty("mongo.password");
+        MONGO_IP = BurritoPOSUtils.getProperty("mongo.ip");
+        MONGO_USER = BurritoPOSUtils.getProperty("mongo.user");
+        MONGO_PASSWORD = BurritoPOSUtils.getProperty("mongo.password");
+        MONGO_DB = BurritoPOSUtils.getProperty("mongo.databasename");
     }
 
     @Override
@@ -46,7 +48,7 @@ public class MongoDBHealthCheck extends HealthCheck {
         if (checkDBConnected()) {
             return Result.healthy(" MongoDB version: " + version);
         } else {
-            return Result.unhealthy("Cannot connect to Mongo Database: neatoBurrito");
+            return Result.unhealthy("Cannot connect to Mongo Database: " + MONGO_DB);
         }
     }
     
@@ -57,14 +59,14 @@ public class MongoDBHealthCheck extends HealthCheck {
         ResultSet rs = null;
 
         try {
-        	logger.trace("Attempting to connect to: " + mongodbURL);
-        	MongoClient m = new MongoClient(mongodbURL);
-    		DB db = m.getDB("neatoBurrito");
+        	dLog.trace("Attempting to connect to: " + MONGO_IP);
+        	MongoClient m = new MongoClient(MONGO_IP);
+    		DB db = m.getDB(MONGO_DB);
     		version = m.getVersion();
     		result=true;
 
         } catch (Exception ex) {
-        	logger.error("Error in checkDBConnected: " + ex);
+        	dLog.error("Error in checkDBConnected", ex);
     		throw new Exception();
         } finally {
         }

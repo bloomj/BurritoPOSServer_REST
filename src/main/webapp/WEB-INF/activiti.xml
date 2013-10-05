@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+	   xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans 
+       						http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+       						http://www.springframework.org/schema/context 
+							http://www.springframework.org/schema/context/spring-context-3.1.xsd				
+         					http://www.springframework.org/schema/aop 
+							http://www.springframework.org/schema/aop/spring-aop.xsd">
+
+    <!-- ========================= Dependencies ==================================== -->
+
+    <!-- Activiti -->
+    
+    <!-- Configure the datasource for Activiti -->
+    <bean id="dataSource" class="org.springframework.jdbc.datasource.TransactionAwareDataSourceProxy">
+        <property name="targetDataSource">
+            <bean class="org.springframework.jdbc.datasource.SimpleDriverDataSource">
+                <property name="driverClass" value="org.postgresql.Driver"/>
+                <property name="url" value="${postgres.url}"/>
+                <property name="username" value="${postgres.user}"/>
+                <property name="password" value="${postgres.password}"/>
+                <!--<property name="history" value="${postgres.history}" />-->
+            </bean>
+        </property>
+    </bean>
+    
+    <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
+    
+    <!-- Configure the process engine for Activiti Spring -->
+    <bean id="processEngineConfiguration" class="org.activiti.spring.SpringProcessEngineConfiguration">
+        <property name="databaseType" value="postgres"/>
+        <property name="dataSource" ref="dataSource"/>
+        <property name="transactionManager" ref="transactionManager"/>
+        <property name="databaseSchemaUpdate" value="${activiti.databaseschemaupdate}"/>
+        <property name="history" value="${activiti.history}"/>
+        <!--<property name="jobExecutorActivate" value="${activiti.jobexecutoractivate}" /> false turns off, default is on to enable timer support -->
+
+		<!-- Define custom identity session factories to tie into same DataSource as OAuth -->
+        <property name="customSessionFactories">
+            <list>
+            	<bean class="com.burritopos.server.rest.identity.group.GroupManagerFactory" scope="singleton"/>
+            	<bean class="com.burritopos.server.rest.identity.membership.MembershipManagerFactory" scope="singleton"/>
+                <bean class="com.burritopos.server.rest.identity.user.UserManagerFactory" scope="singleton"/>
+            </list>
+        </property>
+    </bean>
+    
+    <bean id="processEngine" class="org.activiti.spring.ProcessEngineFactoryBean">
+        <property name="processEngineConfiguration" ref="processEngineConfiguration"/>
+    </bean>
+    
+    <!-- Define Activiti main classes -->
+    <bean id="repositoryService" factory-bean="processEngine" factory-method="getRepositoryService"/>
+    <bean id="runtimeService" factory-bean="processEngine" factory-method="getRuntimeService"/>
+    <bean id="taskService" factory-bean="processEngine" factory-method="getTaskService"/>
+    <bean id="historyService" factory-bean="processEngine" factory-method="getHistoryService"/>
+    <bean id="managementService" factory-bean="processEngine" factory-method="getManagementService"/>
+    <bean id="identityService" factory-bean="processEngine" factory-method="getIdentityService"/>
+    <bean id="formService" factory-bean="processEngine" factory-method="getFormService"/>
+	
+</beans>

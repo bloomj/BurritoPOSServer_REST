@@ -13,7 +13,6 @@ import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-
 /**
  * Runner class for the burrito server service to test the yammer.metrics functionality.
  *
@@ -27,10 +26,43 @@ public class MetricsTest extends BaseTestCase {
      */
     @Test
     @Category(BuildTests.class)
-    public void testResourceServiceHealthCheck() throws IOException {
+    public void testMongoDBHealthCheck() throws IOException {
     	MongoDBHealthCheck check = new MongoDBHealthCheck();
     	
     	Result result = check.execute();
+    	
+    	System.out.println("Result: " + result.getMessage());
+    	
+    	assertTrue(result.isHealthy());
+    }
+    
+    /**
+     * Tests ActivitiHealthCheck class
+     */
+    @Test
+    @Category(BuildTests.class)
+    public void testActivitiHealthCheck() {
+    	ActivitiHealthCheck check = new ActivitiHealthCheck();
+    	
+    	Result result = check.execute();
+    	
+    	System.out.println("Result: " + result.getMessage());
+    	
+    	assertTrue(result.isHealthy());
+    }
+    
+    /**
+     * Tests DatabaseHealthCheck class
+     * @throws IOException 
+     */
+    @Test
+    @Category(BuildTests.class)
+    public void testPostGresHealthCheck() throws IOException {
+    	PostGresHealthCheck check = new PostGresHealthCheck();
+    	
+    	Result result = check.execute();
+    	
+    	System.out.println("Result: " + result.getMessage());
     	
     	assertTrue(result.isHealthy());
     }
