@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:activiti="http://activiti.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://www.activiti.org/test">
   <process id="DailySalesReport" name="DailySalesReport" isExecutable="true" activiti:candidateStarterGroups="ROLE_USER">
+    <!--  TODO: Add executionListener
     <extensionElements>
       <activiti:executionListener event="start" delegateExpression="${stateTransitionListener}"></activiti:executionListener>
       <activiti:executionListener event="end" delegateExpression="${stateTransitionListener}"></activiti:executionListener>
-    </extensionElements>
+    </extensionElements>-->
     <startEvent id="startevent1" name="Start">
       <extensionElements>
         <activiti:formProperty id="State" name="State" type="string" required="true"></activiti:formProperty>
@@ -18,9 +19,10 @@
       <documentation>Write monthly financial report for publication to shareholders.</documentation>
     </userTask>
     <endEvent id="endevent1" name="End"></endEvent>
-    <sequenceFlow id="flow8" sourceRef="usertaskVerify" targetRef="servicetaskNotifyCompletion"></sequenceFlow>
-    <serviceTask id="servicetaskNotifyCompletion" name="Notify Completion" activiti:delegateExpression="${workflowProcessDefinitionInstantiate}"></serviceTask>
-    <sequenceFlow id="flow10" sourceRef="servicetaskNotifyCompletion" targetRef="endevent1"></sequenceFlow>
+    <sequenceFlow id="flow8" sourceRef="usertaskVerify" targetRef="usertaskVerify"></sequenceFlow> <!-- change target back to servicetask when available -->
+    <!--  TODO: Add serviceTask
+    <serviceTask id="servicetaskNotifyCompletion" name="Notify Completion" activiti:delegateExpression="${testServiceTask}"></serviceTask> -->
+    <sequenceFlow id="flow10" sourceRef="usertaskVerify" targetRef="endevent1"></sequenceFlow> <!-- change source back to servicetask when available -->
     <userTask id="userTaskSubmit" name="Submit Sales"></userTask>
     <sequenceFlow id="flow11" sourceRef="startevent1" targetRef="userTaskSubmit"></sequenceFlow>
     <sequenceFlow id="flow12" sourceRef="userTaskSubmit" targetRef="usertaskVerify"></sequenceFlow>
@@ -42,9 +44,9 @@
       <bpmndi:BPMNShape bpmnElement="usertaskVerify" id="BPMNShape_usertaskVerify">
         <omgdc:Bounds height="55.0" width="105.0" x="440.0" y="230.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape bpmnElement="servicetaskNotifyCompletion" id="BPMNShape_servicetaskNotifyCompletion">
+      <!--  <bpmndi:BPMNShape bpmnElement="servicetaskNotifyCompletion" id="BPMNShape_servicetaskNotifyCompletion">
         <omgdc:Bounds height="79.0" width="105.0" x="670.0" y="218.0"></omgdc:Bounds>
-      </bpmndi:BPMNShape>
+      </bpmndi:BPMNShape> -->
       <bpmndi:BPMNShape bpmnElement="userTaskSubmit" id="BPMNShape_userTaskSubmit">
         <omgdc:Bounds height="55.0" width="105.0" x="240.0" y="230.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>

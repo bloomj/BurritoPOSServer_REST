@@ -3,16 +3,10 @@
              xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI"
              typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath"
              targetNamespace="http://www.activiti.org/test">
-    <process id="Draft" name="Draft" isExecutable="true">
-        <extensionElements>
-            <activiti:executionListener delegateExpression="${workflowStateTransitionListener}" event="start"/>
-            <activiti:executionListener delegateExpression="${workflowStateTransitionListener}" event="end"/>
-        </extensionElements>
+    <process id="InvalidProcess" name="InvalidProcess" isExecutable="true">
         <startEvent id="startevent1" name="Start">
             <extensionElements>
             	<activiti:formProperty id="State" name="State" required="true" type="string"/>
-            	<activiti:formProperty id="CDFURI" name="CDFURI" required="true" type="string"/>
-            	<activiti:formProperty id="ResourceURI" name="ResourceURI" required="true" type="string"/>
                 <activiti:formProperty id="id" name="name" type="enum">
                   <activiti:value id="EnumId1" name="EnumName1"></activiti:value>
                   <activiti:value id="EnumId2" name="EnumName2"></activiti:value>
@@ -21,15 +15,9 @@
         </startEvent>
         <exclusiveGateway id="exclusivegateway1" name="Exclusive Gateway"></exclusiveGateway>
         <sequenceFlow id="flow1" sourceRef="startevent1" targetRef="exclusivegateway1">
-            <extensionElements>
-                <activiti:executionListener delegateExpression="${workflowStateTransitionListener}" event="take"/>
-            </extensionElements>
         </sequenceFlow>
         <userTask id="usertaskDraft" name="Draft" activiti:candidateGroups="Group1">
             <extensionElements>
-                <activiti:taskListener delegateExpression="${workflowStateTransitionListener}" event="create"/>
-                <activiti:taskListener delegateExpression="${workflowStateTransitionListener}" event="assignment"/>
-                <activiti:taskListener delegateExpression="${workflowStateTransitionListener}" event="complete"/>
                 <activiti:formProperty id="usertaskDraftenum" name="usertaskDraftenum" type="enum">
                   <activiti:value id="EnumId1" name="EnumName1"></activiti:value>
                   <activiti:value id="EnumId2" name="EnumName2"></activiti:value>

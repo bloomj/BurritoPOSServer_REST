@@ -43,8 +43,9 @@ public class UserManager extends UserEntityManager {
      * Constructor
      * @throws IOException 
      */
-    public UserManager() {
-
+    public UserManager(IGroupSvc groupSvc, IUserSvc userSvc) {
+    	this.groupSvc = groupSvc;
+    	this.userSvc = userSvc;
     }
     
     @Override
@@ -125,10 +126,13 @@ public class UserManager extends UserEntityManager {
     	
     	try {
 	    	if(StringUtils.isNotEmpty(query.getId())) {
+	    		dLog.trace("Querying for users that have criteria | ID: " + query.getId());
 	    		users.add(IdentityUtils.convertUserType(userSvc.getUser(new Integer(query.getId()))));
 	    	} else if(StringUtils.isNotEmpty(query.getFirstName())) {
+	    		dLog.trace("Querying for users that have criteria | Name: " + query.getFirstName());
 	    		users.add(IdentityUtils.convertUserType(userSvc.getUser(query.getFirstName())));
 	    	} else if(StringUtils.isNotEmpty(query.getGroupId())) {
+	    		dLog.trace("Querying for users that have criteria | Group ID: " + query.getGroupId());
 	    		List<com.burritopos.server.domain.User> tUsers = userSvc.getUsers(new Integer(query.getGroupId()));
 	    		
 	    		for(com.burritopos.server.domain.User user : tUsers) {
@@ -150,6 +154,7 @@ public class UserManager extends UserEntityManager {
 
     @Override
     public List<Group> findGroupsByUser(String userName) {
+    	dLog.trace("looking for groups that have user: " + userName);
     	List<Group> groups = new ArrayList<Group>();
     	
     	try {
