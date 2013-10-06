@@ -98,7 +98,7 @@ public class UserManager extends UserEntityManager {
 
     	List<User> users = findUserByQueryCriteria(searchQuery, null);
     	
-    	dLog.trace("User size: " + users.size());
+    	//dLog.trace("User size: " + users.size());
     	if(users.size() > 0) {
     		return (UserEntity) users.get(0);
     	}
@@ -126,13 +126,13 @@ public class UserManager extends UserEntityManager {
     	
     	try {
 	    	if(StringUtils.isNotEmpty(query.getId())) {
-	    		dLog.trace("Querying for users that have criteria | ID: " + query.getId());
+	    		//dLog.trace("Querying for users that have criteria | ID: " + query.getId());
 	    		users.add(IdentityUtils.convertUserType(userSvc.getUser(new Integer(query.getId()))));
 	    	} else if(StringUtils.isNotEmpty(query.getFirstName())) {
-	    		dLog.trace("Querying for users that have criteria | Name: " + query.getFirstName());
+	    		//dLog.trace("Querying for users that have criteria | Name: " + query.getFirstName());
 	    		users.add(IdentityUtils.convertUserType(userSvc.getUser(query.getFirstName())));
 	    	} else if(StringUtils.isNotEmpty(query.getGroupId())) {
-	    		dLog.trace("Querying for users that have criteria | Group ID: " + query.getGroupId());
+	    		//dLog.trace("Querying for users that have criteria | Group ID: " + query.getGroupId());
 	    		List<com.burritopos.server.domain.User> tUsers = userSvc.getUsers(new Integer(query.getGroupId()));
 	    		
 	    		for(com.burritopos.server.domain.User user : tUsers) {
@@ -154,7 +154,7 @@ public class UserManager extends UserEntityManager {
 
     @Override
     public List<Group> findGroupsByUser(String userName) {
-    	dLog.trace("looking for groups that have user: " + userName);
+    	//dLog.trace("looking for groups that have user: " + userName);
     	List<Group> groups = new ArrayList<Group>();
     	
     	try {

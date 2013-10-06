@@ -3,7 +3,6 @@ package com.burritopos.server.rest.library.activiti;
 import com.sun.jersey.core.spi.factory.ResponseBuilderImpl;
 import org.activiti.engine.*;
 import org.activiti.engine.form.FormProperty;
-import org.activiti.engine.identity.UserQuery;
 import org.activiti.engine.task.Task;
 import org.apache.log4j.Logger;
 import org.codehaus.jackson.JsonNode;
@@ -93,13 +92,18 @@ public class UserTask extends WorkflowActiviti {
 
         // get username from OAuth principal
         User loggedUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        String userId = loggedUser.getUsername();
+        String userId = getUserId(loggedUser.getUsername());
+        
+        if(userId == null) {
+        	rootNode.put("Error", "Invalid user.");
+            throw new WebApplicationException(builder.status(Response.Status.BAD_REQUEST).entity(rootNode.toString()).build());
+        }
 
         if (parameters.get("Type") == null) {
             rootNode.put("Error", "Type is required");
             throw new WebApplicationException(builder.status(Response.Status.BAD_REQUEST).entity(rootNode.toString()).build());
         }
-
+        
         TaskInstanceTypeEnum type = null;
         try {
             type = TaskInstanceTypeEnum.valueOf(parameters.get("Type").toUpperCase());
@@ -164,23 +168,23 @@ public class UserTask extends WorkflowActiviti {
     	ArrayNode embeddedArray = new ArrayNode(factory);
     	
         for (Task task : taskList) {
-            ObjectNode processDefJson = mapper.createObjectNode();
+            ObjectNode taskJson = mapper.createObjectNode();
 
-            processDefJson.put("Id", task.getId());
+            taskJson.put("Id", task.getId());
             String taskStatus = "AVAILABLE";
             if(task.getAssignee() != null) {
             	taskStatus = "CLAIMED";
             }
-            processDefJson.put("Status", taskStatus);
-            processDefJson.put("Assignee", task.getAssignee());
-            processDefJson.put("Description", task.getDescription());
-            processDefJson.put("ExecutionId", task.getExecutionId());
-            processDefJson.put("Name", task.getName());
-            processDefJson.put("TaskDefinitionKey", task.getTaskDefinitionKey());
+            taskJson.put("Status", taskStatus);
+            taskJson.put("Assignee", task.getAssignee());
+            taskJson.put("Description", task.getDescription());
+            taskJson.put("ExecutionId", task.getExecutionId());
+            taskJson.put("Name", task.getName());
+            taskJson.put("TaskDefinitionKey", task.getTaskDefinitionKey());
 
             //get list of task form properties
             List<FormProperty> propList = formService.getTaskFormData(task.getId()).getFormProperties();
-            processDefJson.put("TaskFormProperties", getFormProperties(propList));
+            taskJson.put("TaskFormProperties", getFormProperties(propList));
 
             Map<String, Object> map = runtimeService.getVariables(task.getExecutionId());
             ArrayNode vars = new ArrayNode(factory);
@@ -190,7 +194,9 @@ public class UserTask extends WorkflowActiviti {
                 vars.add(varNode);
             }
             
-            processDefJson.put("VariableList", vars);
+            taskJson.put("VariableList", vars);
+            
+            embeddedArray.add(taskJson);
         }
     	
     	return embeddedArray;
@@ -265,11 +271,10 @@ public class UserTask extends WorkflowActiviti {
 
         // get username from OAuth principal
         User loggedUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        String userId = loggedUser.getUsername();
-
-        UserQuery user = identityService.createUserQuery().userFirstName(userId);
-        if (user.count() == 0) {
-            rootNode.put("Error", "Invalid user id: " + userId);
+        String userId = getUserId(loggedUser.getUsername());
+        
+        if(userId == null) {
+        	rootNode.put("Error", "Invalid user.");
             throw new WebApplicationException(builder.status(Response.Status.BAD_REQUEST).entity(rootNode.toString()).build());
         }
 
@@ -373,11 +378,10 @@ public class UserTask extends WorkflowActiviti {
         
         // get username from OAuth principal
         User loggedUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        String userId = loggedUser.getUsername();
-
-        UserQuery user = identityService.createUserQuery().userFirstName(userId);
-        if (user.count() == 0) {
-            rootNode.put("Error", "Invalid user id: " + userId);
+        String userId = getUserId(loggedUser.getUsername());
+        
+        if(userId == null) {
+        	rootNode.put("Error", "Invalid user.");
             throw new WebApplicationException(builder.status(Response.Status.BAD_REQUEST).entity(rootNode.toString()).build());
         }
 
