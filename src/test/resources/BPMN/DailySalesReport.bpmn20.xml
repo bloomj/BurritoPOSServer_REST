@@ -8,14 +8,14 @@
     </extensionElements>-->
     <startEvent id="startevent1" name="Start">
       <extensionElements>
-        <activiti:formProperty id="State" name="State" type="string" required="true"></activiti:formProperty>
+        <activiti:formProperty id="testVal" name="TestVal" type="string" required="true"></activiti:formProperty>
         <activiti:formProperty id="id" name="name" type="enum">
           <activiti:value id="EnumId1" name="EnumName1"></activiti:value>
           <activiti:value id="EnumId2" name="EnumName2"></activiti:value>
         </activiti:formProperty>
       </extensionElements>
     </startEvent>
-    <userTask id="usertaskVerify" name="Verify Sales" activiti:candidateGroups="Group3">
+    <userTask id="usertaskVerify" name="Verify Sales" activiti:candidateGroups="Group1">
       <documentation>Write monthly financial report for publication to shareholders.</documentation>
     </userTask>
     <endEvent id="endevent1" name="End"></endEvent>
@@ -23,7 +23,7 @@
     <!--  TODO: Add serviceTask
     <serviceTask id="servicetaskNotifyCompletion" name="Notify Completion" activiti:delegateExpression="${testServiceTask}"></serviceTask> -->
     <sequenceFlow id="flow10" sourceRef="usertaskVerify" targetRef="endevent1"></sequenceFlow> <!-- change source back to servicetask when available -->
-    <userTask id="userTaskSubmit" name="Submit Sales"></userTask>
+    <userTask id="userTaskSubmit" name="Submit Sales" activiti:candidateGroups="Group1"></userTask>
     <sequenceFlow id="flow11" sourceRef="startevent1" targetRef="userTaskSubmit"></sequenceFlow>
     <sequenceFlow id="flow12" sourceRef="userTaskSubmit" targetRef="usertaskVerify"></sequenceFlow>
   </process>

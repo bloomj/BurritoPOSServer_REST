@@ -121,20 +121,13 @@ public class GroupManager extends GroupEntityManager {
     	
     	try {
 	        if (StringUtils.isNotEmpty(query.getId())) {
-	        	dLog.trace("Querying for groups that have criteria | ID: " + query.getId());
-	        	if(groupSvc == null) {
-	        		dLog.error("My bad");
-	        	}
-	        	com.burritopos.server.domain.Group g = groupSvc.getGroup(Integer.parseInt(query.getId()));
-	        	if(g == null) {
-	        		dLog.error("Unable to get group");
-	        	}
+	        	//dLog.trace("Querying for groups that have criteria | ID: " + query.getId());
 	            groups.add(IdentityUtils.convertGroupType(groupSvc.getGroup(new Integer(query.getId()))));
 	        } else if (StringUtils.isNotEmpty(query.getName())) {
-	        	dLog.trace("Querying for groups that have criteria | Name: " + query.getName());
+	        	//dLog.trace("Querying for groups that have criteria | Name: " + query.getName());
 	        	groups.add(IdentityUtils.convertGroupType(groupSvc.getGroup(query.getName())));
 	        } else if (StringUtils.isNotEmpty(query.getUserId())) {
-	        	dLog.trace("Querying for groups that have criteria | User ID: " + query.getUserId());
+	        	//dLog.trace("Querying for groups that have criteria | User ID: " + query.getUserId());
 	            for(Integer i : userSvc.getUser(new Integer(query.getUserId())).getGroupId()) {
 	            	groups.add(IdentityUtils.convertGroupType(groupSvc.getGroup(i)));
 	            }
@@ -192,7 +185,7 @@ public class GroupManager extends GroupEntityManager {
         
         if (Context.getProcessEngineConfiguration() == null) {
             String msg = "Process engine configuration is wrong";
-            dLog.warn(msg);
+            dLog.error(msg);
             ObjectNode rootNode = mapper.createObjectNode();
             rootNode.put("Error", msg);
             throw new WebApplicationException(new ResponseBuilderImpl().status(Response.Status.INTERNAL_SERVER_ERROR).entity(rootNode.toString()).build());

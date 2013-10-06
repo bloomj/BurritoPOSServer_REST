@@ -240,5 +240,22 @@ public class WorkflowActiviti {
             }
         }
     }
+    
+    /**
+     * Converts user name to user id via identity services
+     * @param userName
+     * @return
+     */
+    protected String getUserId(String userName) {
+        // convert userName to userId using identity services
+        List<org.activiti.engine.identity.User> users = identityService.createUserQuery().userFirstName(userName).list();
+        
+        if(users.size() > 0) {
+        	return users.get(0).getId();
+        }
+        else {
+        	return null;
+        }
+    }
 
 }

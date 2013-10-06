@@ -36,12 +36,11 @@ public class Instance extends WorkflowActiviti {
     /**
      * Creates a new process instances from a specific process definition via form services.
      *
-     * @param token
      * @param payload
      * @return JSON Array of process instances created
      * @throws Exception
      */
-    public String createProcessInstance(String token, String payload) throws Exception {
+    public String createProcessInstance(String payload) throws Exception {
         dLog.trace("in create process instance");
 
         ResponseBuilderImpl builder = new ResponseBuilderImpl();
@@ -104,8 +103,6 @@ public class Instance extends WorkflowActiviti {
                 }
             }
         }
-        // add original payload for later use if needed
-        //formProperties.put("OriginalPayload", payload);
 
         // if we still have properties at this point, send error back to client
         dLog.trace("Number of required form properties missing: " + reqProp.size());
@@ -203,6 +200,7 @@ public class Instance extends WorkflowActiviti {
      * @return JSON Array of process instances
      */
     public String getProcessInstanceList() {
+    	dLog.trace("Getting list of process instances");
         ObjectNode rootNode = mapper.createObjectNode();
         ArrayNode embeddedArray = new ArrayNode(factory);
 
@@ -223,18 +221,22 @@ public class Instance extends WorkflowActiviti {
             List<Task> taskList = taskService.createTaskQuery().processInstanceId(processInst.getId()).list();
             dLog.trace("Got " + taskList.size() + " tasks for process instance: " + processInst.getId());
             if (!taskList.isEmpty()) {
+            	dLog.trace("Task Name: " + taskList.get(0).getName());
+            	
                 List<IdentityLink> idLinks = taskService.getIdentityLinksForTask(taskList.get(0).getId());
                 dLog.trace("Got " + idLinks.size() + " IdLinks for task: " + taskList.get(0).getId());
                 ArrayNode candidateGroups = new ArrayNode(factory);
                 for (IdentityLink iLink : idLinks) {
-                    List<Group> groups = identityService.createGroupQuery().groupId(iLink.getGroupId()).list();
-                    for(Group group : groups) {
-        	            ObjectNode groupJson = mapper.createObjectNode();
-        	            groupJson.put("GroupID", group.getId());
-        	            groupJson.put("GroupName", group.getName());
-        	            
-        	            candidateGroups.add(groupJson);
-                    }
+                	if(iLink.getGroupId() != null) {
+	                    List<Group> groups = identityService.createGroupQuery().groupId(iLink.getGroupId()).list();
+	                    for(Group group : groups) {
+	        	            ObjectNode groupJson = mapper.createObjectNode();
+	        	            groupJson.put("GroupID", group.getId());
+	        	            groupJson.put("GroupName", group.getName());
+	        	            
+	        	            candidateGroups.add(groupJson);
+	                    }
+                	}
                 }
                 processInstJson.put("CandidateGroups", candidateGroups);
             }

@@ -25,6 +25,7 @@ import com.burritopos.server.rest.test.BuildTests;
 import com.burritopos.server.rest.test.IntegrationTests;
 import com.burritopos.server.rest.test.library.BaseTest;
 
+import javax.ws.rs.WebApplicationException;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -83,8 +84,6 @@ public class WorkflowActivitiTest extends BaseTest {
      */
     @After
     public void tearDownCommonResources() throws Exception {
-        super.tearDownCommonResources();
-        
         // make sure processInstanceId still exists
         if (!processDefinitionId.isEmpty()) {
             processInstanceId = getProcessInstanceId(processDefinitionId, true);
@@ -104,6 +103,8 @@ public class WorkflowActivitiTest extends BaseTest {
         //cleanupTests();
         
         System.out.println("   ");
+        
+        super.tearDownCommonResources();
     }
 
     /**
@@ -176,7 +177,7 @@ public class WorkflowActivitiTest extends BaseTest {
         if (mode.equals("classpath")) {
             rootNode.put("name", type + " Test");
             rootNode.put("type", type);
-            rootNode.put("bpmn", "test" + File.separator + bpmnName);
+            rootNode.put("bpmn", "BPMN" + File.separator + bpmnName);
         } else if (mode.equals("xml")) {
             rootNode.put("name", type + " Test");
             rootNode.put("type", type);
@@ -231,10 +232,18 @@ public class WorkflowActivitiTest extends BaseTest {
         embeddedArray.add(formPropJson);
         rootNode.put("StartFormProperties", embeddedArray);
 
-        String responsePayload = activitiInstanceSvc.createProcessInstance(testUser.getUserName(), rootNode.toString());
-        responseJson = mapper.readTree(responsePayload);
-        System.out.println("Returned: " + responsePayload);
-        System.out.println("   ");
+        try {
+	        String responsePayload = activitiInstanceSvc.createProcessInstance(rootNode.toString());
+	        responseJson = mapper.readTree(responsePayload);
+	        System.out.println("Returned: " + responsePayload);
+	        System.out.println("   ");
+        }
+        catch(WebApplicationException e) {
+        	String responsePayload = e.getResponse().getEntity().toString();
+        	responseJson = mapper.readTree(responsePayload);
+	        System.out.println("Returned: " + responsePayload);
+        	throw e;
+        }
     }
 
     /**
@@ -382,7 +391,7 @@ public class WorkflowActivitiTest extends BaseTest {
 
             // this is the check if the process instance is started through form services
             if (childJson.findValue("ExecutionId") != null) {
-                System.out.println("child id: " + childJson.get("ExecutionId").asText() + " | executionId: " + executionId);
+                System.out.println("Name: " + childJson.findValue("Name") + " | child id: " + childJson.get("ExecutionId").asText() + " | executionId: " + executionId);
                 if (executionId.equals(childJson.get("ExecutionId").asText())) {
                     instanceExists = true;
                     taskId = childJson.get("Id").asText();
@@ -425,7 +434,7 @@ public class WorkflowActivitiTest extends BaseTest {
      * @param bpmnName
      * @throws Exception
      */
-    protected void taskInstancePost(String bpmnName, String action) throws Exception {
+    protected void taskInstancePost(String bpmnName) throws Exception {
         // setup
         deploymentId = createDefinition("xml", bpmnName);
 
@@ -459,20 +468,20 @@ public class WorkflowActivitiTest extends BaseTest {
 
         rootNode.put("Action", "Claim");
         rootNode.put("UserId", testUser.getUserName());
-        rootNode.put("GroupId", testUser.getId());
+        rootNode.put("GroupId", testUser.getId().toString());
 
         String responsePayload = activitiUserTaskSvc.updateTask(taskId, null, rootNode.toString());
         responseJson = mapper.readTree(responsePayload);
         
         //ArrayNode definitionList = (ArrayNode) responseJson.get("TaskInstanceClaimedList");
-        checkTaskList("TaskInstanceClaimedList", taskId, testUser.getUserName());
+        checkTaskList("TaskInstanceClaimedList", taskId, testUser.getId().toString());
         
         // Complete first task
         rootNode = mapper.createObjectNode();
 
         rootNode.put("Action", "Complete");
         rootNode.put("UserId", testUser.getUserName());
-        rootNode.put("GroupId", testUser.getId());
+        rootNode.put("GroupId", testUser.getId().toString());
         rootNode.put("TaskDefinitionKey", "usertaskDraft");
         // add task properties
         embeddedArray = new ArrayNode(factory);
@@ -482,11 +491,19 @@ public class WorkflowActivitiTest extends BaseTest {
         embeddedArray.add(formPropJson);
         rootNode.put("TaskFormProperties", embeddedArray);
 
-        responsePayload = activitiUserTaskSvc.updateTask(taskId, null, rootNode.toString());
-        responseJson = mapper.readTree(responsePayload);
-
-        //definitionList = (ArrayNode) responseJson.get("TaskInstanceCompletedList");
-        checkTaskList("TaskInstanceCompletedList", taskId, testUser.getUserName());
+        try {
+	        responsePayload = activitiUserTaskSvc.updateTask(taskId, null, rootNode.toString());
+	        responseJson = mapper.readTree(responsePayload);
+	
+	        //definitionList = (ArrayNode) responseJson.get("TaskInstanceCompletedList");
+	        checkTaskList("TaskInstanceCompletedList", taskId, testUser.getId().toString());
+        }
+        catch(WebApplicationException e) {
+        	responsePayload = e.getResponse().getEntity().toString();
+        	responseJson = mapper.readTree(responsePayload);
+	        System.out.println("Returned: " + responsePayload);
+        	throw e;
+        }
     }
     
     /**
@@ -598,8 +615,7 @@ public class WorkflowActivitiTest extends BaseTest {
     protected ObjectNode getStartFormProperties() {
     	ObjectNode formPropJson = mapper.createObjectNode();
         formPropJson.put("testVal", "Test Value 123");
-        formPropJson.put("draftGroup", "Group1");
-        formPropJson.put("rejectGroup", "Group3");
+        formPropJson.put("id", "EnumId1");
         
         return formPropJson;
     }
@@ -616,8 +632,8 @@ public class WorkflowActivitiTest extends BaseTest {
         JsonNode childJson = definitionList.getElements().next();
         assertNotNull(childJson.get("TaskId"));
         assertNotNull(childJson.get("Assignee"));
-        assertEquals(childJson.get("TaskId").asText(), id);
-        assertEquals(childJson.get("Assignee").asText(), user);
+        assertEquals(id, childJson.get("TaskId").asText());
+        assertEquals(user, childJson.get("Assignee").asText());
     }
     
     /**
