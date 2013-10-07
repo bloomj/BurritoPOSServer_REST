@@ -14,11 +14,7 @@ import org.junit.runners.Suite.SuiteClasses;
 
     @BeforeClass 
     public static void setUpClass() {
-        //including the following property assignments allows filter/AllTests to complete successfully when run separately
-        /*System.setProperty("javax.net.ssl.keyStore", certLocation +"C:\\burritopos.ks");
-        System.setProperty("javax.net.ssl.keyStorePassword", "changeit");
-        System.setProperty("javax.net.ssl.trustStore", certLocation + "C:\\burritopos.ks");
-        System.setProperty("javax.net.ssl.trustStorePassword", "changeit");*/
+
     }
 
     @AfterClass 

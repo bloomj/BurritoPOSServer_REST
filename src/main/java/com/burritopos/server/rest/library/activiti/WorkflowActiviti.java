@@ -1,6 +1,7 @@
 package com.burritopos.server.rest.library.activiti;
 
 import com.burritopos.server.rest.utilities.BurritoPOSUtils;
+import com.sun.jersey.core.spi.factory.ResponseBuilderImpl;
 import com.yammer.metrics.Metrics;
 import com.yammer.metrics.core.Counter;
 import com.yammer.metrics.core.Histogram;
@@ -14,6 +15,8 @@ import org.codehaus.jackson.node.ArrayNode;
 import org.codehaus.jackson.node.JsonNodeFactory;
 import org.codehaus.jackson.node.ObjectNode;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.User;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -21,6 +24,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
+
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Response;
 
 /**
  * Wrapper class for interacting with Activiti Workflow engine.
@@ -103,32 +109,6 @@ public class WorkflowActiviti {
     }
 
     /**
-     * Returns required form properties that do not have default values specified.
-     *
-     * @param id Process Definition Id or Task Id
-     * @return Map<String, String> of required form properties
-     */
-    protected Map<String, String> getRequiredFormProperties(String type, String id) {
-        Map<String, String> map = new HashMap<String, String>();
-
-        //get list of form properties
-        List<FormProperty> propList = null;
-        if (type.equals("startForm")) {
-            propList = formService.getStartFormData(id).getFormProperties();
-        } else if (type.equals("taskForm")) {
-            propList = formService.getTaskFormData(id).getFormProperties();
-        }
-
-        if (propList != null) {
-            for (FormProperty prop : propList)
-                if (prop.isRequired() && prop.getValue() == null)
-                    map.put(prop.getId(), prop.getName());
-        }
-
-        return map;
-    }
-
-    /**
      * Checks a to see if a given property is defined on a specific process definition.
      *
      * @param processDefinitionId Process definition ID
@@ -153,6 +133,42 @@ public class WorkflowActiviti {
         }
 
         return result;
+    }
+    
+    /**
+     * Checks each of the Activiti services
+     * @return results of health check
+     */
+    public String checkActivitiServices() {
+    	// TODO: Write new health check that queries each of the Activiti services
+    	
+    	return "";
+    }
+    
+    /**
+     * Returns required form properties that do not have default values specified.
+     *
+     * @param id Process Definition Id or Task Id
+     * @return Map<String, String> of required form properties
+     */
+    protected Map<String, String> getRequiredFormProperties(String type, String id) {
+        Map<String, String> map = new HashMap<String, String>();
+
+        //get list of form properties
+        List<FormProperty> propList = null;
+        if (type.equals("startForm")) {
+            propList = formService.getStartFormData(id).getFormProperties();
+        } else if (type.equals("taskForm")) {
+            propList = formService.getTaskFormData(id).getFormProperties();
+        }
+
+        if (propList != null) {
+            for (FormProperty prop : propList)
+                if (prop.isRequired() && prop.getValue() == null)
+                    map.put(prop.getId(), prop.getName());
+        }
+
+        return map;
     }
     
     /**
@@ -246,7 +262,7 @@ public class WorkflowActiviti {
      * @param userName
      * @return
      */
-    protected String getUserId(String userName) {
+    protected String getUserIdFromUserName(String userName) {
         // convert userName to userId using identity services
         List<org.activiti.engine.identity.User> users = identityService.createUserQuery().userFirstName(userName).list();
         
@@ -258,4 +274,41 @@ public class WorkflowActiviti {
         }
     }
 
+    /**
+     * Gets userId from OAuth principal
+     * @return
+     */
+    protected String getUserId() {
+    	ResponseBuilderImpl builder = new ResponseBuilderImpl();
+    	ObjectNode rootNode = mapper.createObjectNode();
+
+        User loggedUser = getPrincipal();
+        String userId = getUserIdFromUserName(loggedUser.getUsername());
+        
+        if(userId == null) {
+        	dLog.error("Invalid user: " + loggedUser.getUsername());
+        	rootNode.put("Error", "Invalid user: " + loggedUser.getUsername());
+            throw new WebApplicationException(builder.status(Response.Status.BAD_REQUEST).entity(rootNode.toString()).build());
+        }
+        
+        return userId;
+    }
+    
+    /**
+     * Gets OAuth principal
+     * @return
+     */
+    protected User getPrincipal() {
+    	ResponseBuilderImpl builder = new ResponseBuilderImpl();
+    	ObjectNode rootNode = mapper.createObjectNode();
+    	
+        // get username from OAuth principal
+        if(SecurityContextHolder.getContext().getAuthentication() == null) {
+        	dLog.error("Unauthorized user");
+        	rootNode.put("Error", "User not authorized.");
+            throw new WebApplicationException(builder.status(Response.Status.BAD_REQUEST).entity(rootNode.toString()).build());
+        }
+        
+        return (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    }
 }

@@ -6,11 +6,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.authority.AuthorityUtils;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.User;
 
 import com.burritopos.server.rest.test.BuildTests;
 
@@ -33,15 +28,6 @@ public class UserTaskTest extends WorkflowActivitiTest {
     @Before
     public void initCommonResources() throws Exception {
         super.initCommonResources();
-        
-		// set OAuth principal for test user
-		String[] roles = new String[testUser.getGroupId().size()];
-		for(int i=0; i<testUser.getGroupId().size(); i++) {
-			roles[i] = groupSvc.getGroup(testUser.getGroupId().get(i)).getName();
-		}
-    	User userPrincipal = new User(testUser.getUserName(), testUser.getPassword(), true, true, true, true, AuthorityUtils.createAuthorityList(roles));
-    	Authentication userAuth = new UsernamePasswordAuthenticationToken(userPrincipal, userPrincipal.getAuthorities());
-    	SecurityContextHolder.getContext().setAuthentication(userAuth);
     }
 
     /**
@@ -72,8 +58,8 @@ public class UserTaskTest extends WorkflowActivitiTest {
     @Test
     @Category(BuildTests.class)
     public void testTaskInstanceGet() throws Exception {
-        getTaskId("", "", "Available", testUser.getId().toString(), testGroup.getId().toString());
-        getTaskId("", "", "Claimed", testUser.getId().toString(), testGroup.getId().toString());
+        getTaskId("", "", "Available", testUser.getId().toString(), testUserGroup.getId().toString());
+        getTaskId("", "", "Claimed", testUser.getId().toString(), testUserGroup.getId().toString());
     }
 
     /**
@@ -167,7 +153,7 @@ public class UserTaskTest extends WorkflowActivitiTest {
 
         // add form properties
         ObjectNode formPropJson = mapper.createObjectNode();
-        formPropJson.put("draftGroup", testGroup.getId().toString());
+        formPropJson.put("draftGroup", testUserGroup.getId().toString());
 
         createInstance(deploymentId, formPropJson, 400);
 
@@ -188,14 +174,14 @@ public class UserTaskTest extends WorkflowActivitiTest {
         System.out.println("Got processInstanceId: " + processInstanceId);
 
         // get task id
-        String taskId = getTaskId(processDefinitionId, processInstanceId, "Available", testUser.getId().toString(), testGroup.getId().toString());
+        String taskId = getTaskId(processDefinitionId, processInstanceId, "Available", testUser.getId().toString(), testUserGroup.getId().toString());
         System.out.println("Got task id: " + taskId);
 
         // Claim task
         ObjectNode rootNode = mapper.createObjectNode();
         rootNode.put("Action", "Claim");
         rootNode.put("UserId", testUser.getId().toString());
-        rootNode.put("GroupId", testGroup.getId().toString());
+        rootNode.put("GroupId", testUserGroup.getId().toString());
 
         String responsePayload = activitiUserTaskSvc.updateTask(taskId, null, rootNode.toString());
         responseJson = mapper.readTree(responsePayload);
@@ -205,7 +191,7 @@ public class UserTaskTest extends WorkflowActivitiTest {
         rootNode = mapper.createObjectNode();
         rootNode.put("Action", "Complete");
         rootNode.put("UserId", "INVALID_USER");
-        rootNode.put("GroupId", testGroup.getId().toString());
+        rootNode.put("GroupId", testUserGroup.getId().toString());
         formPropJson = mapper.createObjectNode();
         ArrayNode embeddedArray = new ArrayNode(factory);
         embeddedArray.add(formPropJson);
@@ -218,7 +204,7 @@ public class UserTaskTest extends WorkflowActivitiTest {
         rootNode = mapper.createObjectNode();
         rootNode.put("Action", "Complete");
         rootNode.put("UserId", testUser.getId().toString());
-        rootNode.put("GroupId", testGroup.getId());
+        rootNode.put("GroupId", testUserGroup.getId());
         // add task properties
         embeddedArray = new ArrayNode(factory);
         formPropJson = mapper.createObjectNode();
