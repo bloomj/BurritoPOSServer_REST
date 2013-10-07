@@ -12,6 +12,7 @@ import org.apache.log4j.Logger;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.node.ArrayNode;
 import org.codehaus.jackson.node.ObjectNode;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -157,13 +158,16 @@ public class Definition extends WorkflowActiviti {
      *
      * @return JSON array of all process definitions
      */
-    public String getProcessDefinitionList(String userId, String type) {
+    public String getProcessDefinitionList(String type, boolean showAll) {
         ObjectNode rootNode = mapper.createObjectNode();
         ArrayNode embeddedArray = new ArrayNode(factory);
 
+        String userId = getUserId();
+        
         //get list of process definition
         List<ProcessDefinition> processDefList = new ArrayList<ProcessDefinition>();
-        if(userId.isEmpty()) {
+        if(getPrincipal().getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN")) && showAll) {
+        	// show all only if in ROLE_ADMIN
         	processDefList = repositoryService.createProcessDefinitionQuery().processDefinitionNameLike("%" + type +"%").list();
         }
         else {

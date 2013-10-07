@@ -11,7 +11,6 @@ import org.activiti.engine.impl.context.Context;
 import org.activiti.engine.impl.persistence.entity.GroupEntity;
 import org.activiti.engine.impl.persistence.entity.MembershipEntity;
 import org.activiti.engine.impl.persistence.entity.UserEntity;
-import org.codehaus.jackson.JsonProcessingException;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -36,8 +35,7 @@ public class IdentityCoreTest extends BaseTestCase {
     protected static MembershipManager membershipManager;
 
     // static test strings
-    // RBAC search breaks with big strings, just use random subset
-    protected static String testGUID = UUID.randomUUID().toString().substring(0, 7);
+    protected static String testGUID = UUID.randomUUID().toString();
     protected static String testGroupStr = "TEST-ROLE_" + testGUID;
     protected static String testUserStr = "TEST-USER_" + testGUID;
 
@@ -61,8 +59,7 @@ public class IdentityCoreTest extends BaseTestCase {
     /**
      * Setups common test code for class
      *
-     * @throws JsonProcessingException
-     * @throws IOException
+     * @throws Exception
      */
     @BeforeClass
     public static void setUpClass() throws Exception {
@@ -109,8 +106,7 @@ public class IdentityCoreTest extends BaseTestCase {
     /**
      * Tears down common test code for class
      *
-     * @throws JsonProcessingException
-     * @throws IOException
+     * @throws Exception
      */
     @AfterClass
     public static void tearDownClass() throws Exception {

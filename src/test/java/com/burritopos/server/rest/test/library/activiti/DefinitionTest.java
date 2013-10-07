@@ -63,7 +63,7 @@ public class DefinitionTest extends WorkflowActivitiTest {
         
         System.out.println("Getting process defintions for candidateGroup: " + testUser.getUserName());
         // get list of process definitions by candidate Group
-        getProcessDefinitionId(testUser.getId().toString(), "DailySalesReport", deploymentId, testGroup.getName());
+        getProcessDefinitionId(testUser.getId().toString(), "DailySalesReport", deploymentId, testUserGroup.getName());
     }
 
     /**
@@ -76,7 +76,7 @@ public class DefinitionTest extends WorkflowActivitiTest {
         System.out.println("Getting process definition list with invalid parameters");
 
         // now get the response entity
-        String responsePayload = activitiDefinitionSvc.getProcessDefinitionList("XXX", "");
+        String responsePayload = activitiDefinitionSvc.getProcessDefinitionList("XXX", false);
         responseJson = mapper.readTree(responsePayload);
         System.out.println("Returned: " + responsePayload);
         System.out.println("   ");

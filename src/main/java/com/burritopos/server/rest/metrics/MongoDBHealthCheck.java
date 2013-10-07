@@ -54,9 +54,6 @@ public class MongoDBHealthCheck extends HealthCheck {
     
     private Boolean checkDBConnected() throws Exception {
         Boolean result = false;
-    	Connection con = null;
-        Statement st = null;
-        ResultSet rs = null;
 
         try {
         	dLog.trace("Attempting to connect to: " + MONGO_IP);
@@ -68,8 +65,7 @@ public class MongoDBHealthCheck extends HealthCheck {
         } catch (Exception ex) {
         	dLog.error("Error in checkDBConnected", ex);
     		throw new Exception();
-        } finally {
-        }
+        } 
         
         return result;
     }
