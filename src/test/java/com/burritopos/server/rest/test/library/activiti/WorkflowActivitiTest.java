@@ -10,6 +10,11 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.AuthorityUtils;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.User;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -75,6 +80,15 @@ public class WorkflowActivitiTest extends BaseTest {
         deploymentId = "";
         processDefinitionId = "";
         processInstanceId = "";
+        
+        // set OAuth principal for test user
+        String[] roles = new String[testUser.getGroupId().size()];
+        for(int i=0; i<testUser.getGroupId().size(); i++) {
+        	roles[i] = groupSvc.getGroup(testUser.getGroupId().get(i)).getName();
+        }
+        User userPrincipal = new User(testUser.getUserName(), testUser.getPassword(), true, true, true, true, AuthorityUtils.createAuthorityList(roles));
+        Authentication userAuth = new UsernamePasswordAuthenticationToken(userPrincipal, userPrincipal.getAuthorities());
+        SecurityContextHolder.getContext().setAuthentication(userAuth);
     }
 
     /**
@@ -271,7 +285,7 @@ public class WorkflowActivitiTest extends BaseTest {
 
         // test we have the newly created process definition
         System.out.println("Getting process definition list for user: " + userId + " | definition types: " + definitionType + " | candidate group: " + candidateGroup);
-        String responsePayload = activitiDefinitionSvc.getProcessDefinitionList(userId, definitionType);
+        String responsePayload = activitiDefinitionSvc.getProcessDefinitionList(definitionType, false);
         System.out.println("Response: " + responsePayload);
         responseJson = mapper.readTree(responsePayload);
 
@@ -460,7 +474,7 @@ public class WorkflowActivitiTest extends BaseTest {
         System.out.println("Got processInstanceId: " + processInstanceId);
 
         // get task id
-        String taskId = getTaskId(processDefinitionId, processInstanceId, "Available", testUser.getUserName(), testGroup.getId().toString());
+        String taskId = getTaskId(processDefinitionId, processInstanceId, "Available", testUser.getUserName(), testUserGroup.getId().toString());
         System.out.println("Got task id: " + taskId);
 
         // Claim task
@@ -653,7 +667,7 @@ public class WorkflowActivitiTest extends BaseTest {
         bpmnXML = writer.toString();
         
         // sub out user/groups names with their respective IDs in the BPMN XML
-        bpmnXML = bpmnXML.replace("Group1", testGroup.getId().toString());
+        bpmnXML = bpmnXML.replace("Group1", testUserGroup.getId().toString());
         bpmnXML = bpmnXML.replace("User1", testUser.getId().toString());
         
         //System.out.println("bpmn xml: " + bpmnXML);

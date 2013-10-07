@@ -10,8 +10,6 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.node.ArrayNode;
 import org.codehaus.jackson.node.ObjectNode;
 import org.codehaus.jackson.node.TextNode;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.User;
 
 import java.io.IOException;
 import java.util.EnumSet;
@@ -90,14 +88,7 @@ public class UserTask extends WorkflowActiviti {
         ResponseBuilderImpl builder = new ResponseBuilderImpl();
         ArrayNode embeddedArray = new ArrayNode(factory);
 
-        // get username from OAuth principal
-        User loggedUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        String userId = getUserId(loggedUser.getUsername());
-        
-        if(userId == null) {
-        	rootNode.put("Error", "Invalid user.");
-            throw new WebApplicationException(builder.status(Response.Status.BAD_REQUEST).entity(rootNode.toString()).build());
-        }
+        String userId = getUserId();
 
         if (parameters.get("Type") == null) {
             rootNode.put("Error", "Type is required");
@@ -269,14 +260,7 @@ public class UserTask extends WorkflowActiviti {
         ObjectNode rootNode = mapper.createObjectNode();
         ArrayNode embeddedArray = new ArrayNode(factory);
 
-        // get username from OAuth principal
-        User loggedUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        String userId = getUserId(loggedUser.getUsername());
-        
-        if(userId == null) {
-        	rootNode.put("Error", "Invalid user.");
-            throw new WebApplicationException(builder.status(Response.Status.BAD_REQUEST).entity(rootNode.toString()).build());
-        }
+        String userId = getUserId();
 
         // check to see if task exists and is available to UserId
         List<Task> taskList = taskService.createTaskQuery().taskCandidateUser(userId).taskId(taskId).list();
@@ -376,14 +360,7 @@ public class UserTask extends WorkflowActiviti {
 
         JsonNode payloadJson = mapper.readTree(payload);
         
-        // get username from OAuth principal
-        User loggedUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        String userId = getUserId(loggedUser.getUsername());
-        
-        if(userId == null) {
-        	rootNode.put("Error", "Invalid user.");
-            throw new WebApplicationException(builder.status(Response.Status.BAD_REQUEST).entity(rootNode.toString()).build());
-        }
+        String userId = getUserId();
 
         //verify taskid is currently assigned to user?
         //verify task is valid

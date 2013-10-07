@@ -1,5 +1,7 @@
 package com.burritopos.server.rest.test.library;
 
+import java.util.Random;
+
 import com.burritopos.server.domain.Group;
 import com.burritopos.server.domain.User;
 import com.burritopos.server.rest.test.BaseTestCase;
@@ -12,9 +14,11 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.node.JsonNodeFactory;
 import org.codehaus.jackson.node.ObjectNode;
 import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
@@ -30,15 +34,21 @@ public class BaseTest extends BaseTestCase {
     protected ObjectNode rootNode;
     protected JsonNode responseJson;
     protected JsonNodeFactory factory;
+    protected static final Random rand = new Random();
 
     // test entities
-    @Autowired
-    protected IUserSvc userSvc;
-    protected User testUser;
+    protected static IUserSvc userSvc;
+    protected static User testUser;
+    protected static IGroupSvc groupSvc;
+    protected static Group testUserGroup;
+    protected static Group testAdminGroup;
     
-    @Autowired
-    protected IGroupSvc groupSvc;
-    protected Group testGroup;
+    // Spring configuration
+    private static final String SPRING_CONFIG_DEFAULT = "applicationContext.xml";
+    
+    // Static strings
+    private static final String USER_ROLE_STR = "ROLE_USER";
+    private static final String ADMIN_ROLE_STR = "ROLE_ADMIN";
 	
     /**
      * Initializes the test case.
@@ -47,6 +57,71 @@ public class BaseTest extends BaseTestCase {
         super();
     }
 
+    /**
+     * Setups common test code for class
+     *
+     * @throws Exception
+     */
+    @BeforeClass 
+    public static void setUpClass() throws Exception {      
+        //Spring Framework IoC
+        ClassPathXmlApplicationContext beanfactory = null;
+        try {
+            beanfactory = new ClassPathXmlApplicationContext(SPRING_CONFIG_DEFAULT);
+            userSvc = (IUserSvc)beanfactory.getBean("userSvc");
+            groupSvc = (IGroupSvc)beanfactory.getBean("groupSvc");
+
+        } catch (Exception e) {
+        	System.out.println("Unable to set Spring bean");
+        	e.printStackTrace();
+        } finally {
+            if (beanfactory != null) {
+                beanfactory.close();
+            }
+        }
+        
+        testUserGroup = new Group();
+        testUserGroup.setId(rand.nextInt());
+        testUserGroup.setName(USER_ROLE_STR);
+        
+        groupSvc.storeGroup(testUserGroup);
+        assertNotNull(groupSvc.getGroup(testUserGroup.getId()));
+        
+        testAdminGroup = new Group();
+        testAdminGroup.setId(rand.nextInt());
+        testAdminGroup.setName(ADMIN_ROLE_STR);
+        
+        groupSvc.storeGroup(testAdminGroup);
+        assertNotNull(groupSvc.getGroup(testAdminGroup.getId()));
+        
+        testUser = new User();
+        testUser.setId(rand.nextInt());
+        testUser.addGroupId(testUserGroup.getId());
+        testUser.addGroupId(testAdminGroup.getId());
+        testUser.setUserName("Test_User");
+        testUser.setPassword(BCrypt.hashpw("password", BCrypt.gensalt()));
+        
+        userSvc.storeUser(testUser);
+        assertNotNull(userSvc.getUser(testUser.getId()));
+    }
+
+    /**
+     * Tears down common test code for class
+     *
+     * @throws Exception
+     */
+    @AfterClass 
+    public static void tearDownClass() throws Exception { 
+        groupSvc.deleteGroup(testUserGroup.getId());
+        assertNull(groupSvc.getGroup(testUserGroup.getId()).getName());
+        
+        groupSvc.deleteGroup(testAdminGroup.getId());
+        assertNull(groupSvc.getGroup(testAdminGroup.getId()).getName());
+        
+        userSvc.deleteUser(testUser.getId());
+    	assertNull(userSvc.getUser(testUser.getId()).getUserName());
+    }
+    
     /**
      * Sets up the necessary code to run the tests.
      *
@@ -58,22 +133,6 @@ public class BaseTest extends BaseTestCase {
         
         mapper = new ObjectMapper();
         factory = JsonNodeFactory.instance;
-
-        testGroup = new Group();
-        testGroup.setId(56);
-        testGroup.setName("Test_Group");
-        
-        groupSvc.storeGroup(testGroup);
-        assertNotNull(groupSvc.getGroup(testGroup.getId()));
-        
-        testUser = new User();
-        testUser.setId(123);
-        testUser.addGroupId(testGroup.getId());
-        testUser.setUserName("Test_User");
-        testUser.setPassword(BCrypt.hashpw("password", BCrypt.gensalt()));
-        
-        userSvc.storeUser(testUser);
-        assertNotNull(userSvc.getUser(testUser.getId()));
     }
 
     /**
@@ -84,11 +143,5 @@ public class BaseTest extends BaseTestCase {
     @After
     public void tearDownCommonResources() throws Exception {
         super.tearDownCommonResources();
-        
-        groupSvc.deleteGroup(testGroup.getId());
-        assertNull(groupSvc.getGroup(testGroup.getId()).getName());
-        
-        userSvc.deleteUser(testUser.getId());
-    	assertNull(userSvc.getUser(testUser.getId()).getUserName());
     }
 }
