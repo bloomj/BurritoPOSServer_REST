@@ -32,6 +32,7 @@ public class OAuthMongoDAO implements UserDetailsService {
 		
 		try {
 			com.burritopos.server.domain.User tUser = userSvc.getUser(username);
+			
 			if(tUser != null && tUser.validate()) {
 				// get all groups (e.g. roles)
 				String[] roles = new String[tUser.getGroupId().size()];
@@ -44,6 +45,12 @@ public class OAuthMongoDAO implements UserDetailsService {
 				user = new User(username, tUser.getPassword(), true, true, true, true, AuthorityUtils.createAuthorityList(roles));
 				loginCounter.inc();
 			}
+			else {
+				throw new UsernameNotFoundException("Invalid user: " + username);
+			}
+		}
+		catch(UsernameNotFoundException e) {
+			throw e;
 		}
 		catch(Exception e) {
 			dLog.trace("Error in loadUserByUsername", e);
