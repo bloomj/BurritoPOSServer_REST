@@ -140,9 +140,52 @@ public class WorkflowActiviti {
      * @return results of health check
      */
     public String checkActivitiServices() {
-    	// TODO: Write new health check that queries each of the Activiti services
+    	String result = "";
     	
-    	return "";
+    	try {
+	    	//check processEngine
+	    	if(processEngine == null) {
+	    		return "Process engine is not configured";
+	    	}
+	    	
+	    	//check runtimeService
+	    	if(runtimeService == null) {
+	    		return "Runtime service is not configured";
+	    	}
+	    	
+	    	//check taskService
+	    	if(taskService == null) {
+	    		return "Task service is not configured";
+	    	}
+	    	taskService.getAttachment("");
+	    	
+	    	//check repositoryService
+	    	if(repositoryService == null) {
+	    		return "Repository service is not configured";
+	    	}
+	    	repositoryService.getModel("TEST");
+	    	
+	    	//check identityService
+	    	if(identityService == null) {
+	    		return "Identity service is not configured";
+	    	}
+	    	
+	    	//check formService
+	    	if(formService == null) {
+	    		return "Form service is not configured";
+	    	}
+	    	
+	    	//check historyService
+	    	if(historyService == null) {
+	    		return "History service is not configured";
+	    	}
+	    	historyService.createHistoricDetailQuery().activityInstanceId("TEST");
+    	}
+    	catch(Exception e) {
+    		result = e.getMessage();
+    	}
+    	
+    	return result;
     }
     
     /**
