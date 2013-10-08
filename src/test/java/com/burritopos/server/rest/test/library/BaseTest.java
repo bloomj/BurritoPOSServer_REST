@@ -44,11 +44,15 @@ public class BaseTest extends BaseTestCase {
     protected static Group testAdminGroup;
     
     // Spring configuration
-    private static final String SPRING_CONFIG_DEFAULT = "applicationContext.xml";
+    protected static final String SPRING_CONFIG_DEFAULT = "applicationContext.xml";
     
     // Static strings
-    private static final String USER_ROLE_STR = "ROLE_USER";
-    private static final String ADMIN_ROLE_STR = "ROLE_ADMIN";
+    protected static final String USER_USERNAME_STR = "Test_User";
+    protected static final String USER_PASSWORD_STR = BCrypt.hashpw("password", BCrypt.gensalt());
+    protected static final String ADMIN_USERNAME_STR = "Test_Admin";
+    protected static final String ADMIN_PASSWORD_STR = USER_PASSWORD_STR;
+    protected static final String USER_ROLE_STR = "ROLE_USER";
+    protected static final String ADMIN_ROLE_STR = "ROLE_ADMIN";
 	
     /**
      * Initializes the test case.
@@ -98,8 +102,8 @@ public class BaseTest extends BaseTestCase {
         testUser.setId(rand.nextInt());
         testUser.addGroupId(testUserGroup.getId());
         testUser.addGroupId(testAdminGroup.getId());
-        testUser.setUserName("Test_User");
-        testUser.setPassword(BCrypt.hashpw("password", BCrypt.gensalt()));
+        testUser.setUserName(USER_USERNAME_STR);
+        testUser.setPassword(USER_PASSWORD_STR);
         
         userSvc.storeUser(testUser);
         assertNotNull(userSvc.getUser(testUser.getId()));
