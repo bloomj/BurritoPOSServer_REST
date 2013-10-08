@@ -44,13 +44,13 @@ public class BurritoPOSUtils {
 		else {
 	    	// get burrito pos service properties
 	        Properties propList = new Properties();
-	        dLog.trace("Loading burritoposserver.properties");
+	        //dLog.trace("Loading burritoposserver.properties");
 
 	        propList.load(ServerService.class.getResourceAsStream("burritoposserver.properties"));
 	        propValue = propList.getProperty(propName);
 	        properties.put(propName, propValue);
 	            
-	        dLog.trace("Got " + propName + " value: " + propValue);
+	        //dLog.trace("Got " + propName + " value: " + propValue);
 		}
 		
 		return propValue;
