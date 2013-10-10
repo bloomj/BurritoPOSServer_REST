@@ -90,7 +90,7 @@ public class UserTaskTest extends WorkflowActivitiTest {
     @Test
     @Category(BuildTests.class)
     public void testTaskInstancePost() throws Exception {
-        taskInstancePost("DailySalesReport.bpmn20.xml");
+        taskInstancePost("DailySalesReport.bpmn20.xml", "DailySalesReport");
     }
 
     /**

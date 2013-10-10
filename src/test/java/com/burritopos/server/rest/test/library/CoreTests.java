@@ -10,6 +10,7 @@ import com.burritopos.server.rest.test.library.activiti.DefinitionTest;
 import com.burritopos.server.rest.test.library.activiti.InstanceTest;
 import com.burritopos.server.rest.test.library.activiti.UserTaskTest;
 import com.burritopos.server.rest.test.library.activiti.WorkflowActivitiTest;
+import com.burritopos.server.rest.test.library.activiti.listener.SimpleExecutionListenerTest;
 
 @RunWith(Suite.class)
 @SuiteClasses({ 
@@ -17,7 +18,8 @@ import com.burritopos.server.rest.test.library.activiti.WorkflowActivitiTest;
 	DefinitionTest.class,
 	InstanceTest.class,
 	UserTaskTest.class,
-	WorkflowActivitiTest.class
+	WorkflowActivitiTest.class,
+	SimpleExecutionListenerTest.class
 	})
     public class CoreTests {
 
