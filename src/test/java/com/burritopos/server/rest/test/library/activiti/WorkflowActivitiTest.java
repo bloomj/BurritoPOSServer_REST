@@ -448,12 +448,12 @@ public class WorkflowActivitiTest extends BaseTest {
      * @param bpmnName
      * @throws Exception
      */
-    protected void taskInstancePost(String bpmnName) throws Exception {
+    protected void taskInstancePost(String bpmnName, String processId) throws Exception {
         // setup
         deploymentId = createDefinition("xml", bpmnName);
 
         // get ProcessDefinitionId
-        processDefinitionId = getProcessDefinitionId(testUser.getId().toString(), "DailySalesReport", deploymentId, "");
+        processDefinitionId = getProcessDefinitionId(testUser.getId().toString(), processId, deploymentId, "");
         System.out.println("Got processDefinitionId: " + processDefinitionId);
         System.out.println("   ");
 
