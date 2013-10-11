@@ -65,6 +65,9 @@
 	<bean id="activitiUserTaskSvc" class="com.burritopos.server.rest.library.activiti.UserTask" parent="activitiSvc" scope="singleton"/>
 	
 	<!-- com.burritopos.server.rest.library.activiti.listener -->
+	<bean id="simpleDelegate" class="com.burritopos.server.rest.library.activiti.delegate.SimpleDelegate" scope="singleton"/>
+	
+	<!-- com.burritopos.server.rest.library.activiti.listener -->
 	<bean id="simpleExecutionListener" class="com.burritopos.server.rest.library.activiti.listener.SimpleExecutionListener" scope="singleton"/>
 
 	<!-- com.burritopos.server.rest.utilities -->
