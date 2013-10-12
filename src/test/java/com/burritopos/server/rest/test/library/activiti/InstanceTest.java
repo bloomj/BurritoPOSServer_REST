@@ -50,7 +50,7 @@ public class InstanceTest extends WorkflowActivitiTest {
     }
 
     /**
-     * Tests for 200 response to a GET method to path /processinstance and verifies the response payload.
+     * Tests for successful process instance retrieval.
      *
      * @throws UnsupportedEncodingException
      * @throws JsonProcessingException
@@ -63,7 +63,7 @@ public class InstanceTest extends WorkflowActivitiTest {
     }
 
     /**
-     * Tests for 201 response to a POST method to path /processinstance and verifies the response payload.
+     * Tests for successful process instance creation.
      * @throws Exception 
      */
     @Test
@@ -82,7 +82,7 @@ public class InstanceTest extends WorkflowActivitiTest {
     }
 
     /**
-     * Tests for 415/400 response to a POST method to path /processinstance via invalid acceptable media type, missing payload values, and invalid process definition id.
+     * Tests for error handling for invalid process instance creation.
      * @throws Exception 
      */
     @Test(expected=WebApplicationException.class)
@@ -104,7 +104,7 @@ public class InstanceTest extends WorkflowActivitiTest {
     }
 
     /**
-     * Tests for 200 response to a DELETE method to path /processinstance and verifies the response payload.
+     * Tests for successful process instance deletion.
      * @throws Exception 
      */
     @Test
@@ -119,7 +119,7 @@ public class InstanceTest extends WorkflowActivitiTest {
     }
 
     /**
-     * Tests for 405/400 response to a DELETE method to path /processinstance via blank deployment id and invalid deployment id.
+     * Tests for error handling for invalid process instance deletion.
      * @throws Exception 
      */
     @Test(expected=WebApplicationException.class)
