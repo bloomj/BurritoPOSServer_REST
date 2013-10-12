@@ -24,7 +24,7 @@ Currently demonstrates
 TODO
 -------------------------
 * Update/Complete unit tests
-* Update/Complete documentation
+* Update/Complete documentation (Perhaps Swagger for REST API documentation)
 * Update requirements to demonstrate Activiti, RabbitMQ (AMQP), and Solr or ElasticSearch
 
 Notes

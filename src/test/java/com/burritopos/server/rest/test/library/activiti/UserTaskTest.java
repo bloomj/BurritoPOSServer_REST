@@ -49,9 +49,8 @@ public class UserTaskTest extends WorkflowActivitiTest {
     	super();
     }
 
-
     /**
-     * Tests for 200 response to a GET method to path /taskinstance and verifies the response payload.
+     * Tests for successful task instance retrieval.
      *
      * @throws Exception
      */
@@ -63,7 +62,7 @@ public class UserTaskTest extends WorkflowActivitiTest {
     }
 
     /**
-     * Tests for 406/500 response to a GET method to path /taskinstance via invalid acceptable media type and missing payload values.
+     * Tests for error handling for invalid task instance retrieval.
      *
      * @throws Exception
      */
@@ -71,37 +70,32 @@ public class UserTaskTest extends WorkflowActivitiTest {
     @Category(BuildTests.class)
     public void testInvalidTaskInstanceGet() throws Exception {
         Map<String, String> params = new HashMap<String, String>();
-        params.put("UserId", "XXX");
-        String responsePayload = activitiUserTaskSvc.getTaskInstanceList(params);
-        responseJson = mapper.readTree(responsePayload);
-
         params = new HashMap<String, String>();
-        params.put("UserId", "XXX");
         params.put("Type", "INVALID_TYPE");
-        responsePayload = activitiUserTaskSvc.getTaskInstanceList(params);
+        String responsePayload = activitiUserTaskSvc.getTaskInstanceList(params);
         responseJson = mapper.readTree(responsePayload);
     }
 
     /**
-     * Tests for 200 response to a POST method to path /taskinstance using a BPMN XML definition without form extensions and verifies the response payload
+     * Tests for successful completion of user task.
      *
      * @throws Exception
      */
     @Test
     @Category(BuildTests.class)
-    public void testTaskInstancePost() throws Exception {
-        taskInstancePost("DailySalesReport.bpmn20.xml", "DailySalesReport");
+    public void testTaskInstanceCreate() throws Exception {
+        taskInstanceAndComplete("DailySalesReport.bpmn20.xml", "DailySalesReport");
     }
 
     /**
-     * Tests for 405/400 response to a POST method to path /taskinstance via invalid acceptable media type, missing payload values, and invalid task id.
+     * Tests for error handling for invalid requests for task completion. 
      *
      * @throws Exception
      * @throws WebApplicationException
      */
     @Test(expected = WebApplicationException.class)
     @Category(BuildTests.class)
-    public void testInvalidTaskInstancePost() throws WebApplicationException, Exception {
+    public void testInvalidTaskInstanceCreate() throws WebApplicationException, Exception {
         ObjectNode rootNode = mapper.createObjectNode();
         rootNode.put("INVALID_PARAM", "INVALID_PARAM");
         String responsePayload = activitiUserTaskSvc.updateTask("INVALID_ID", null, rootNode.toString());
@@ -136,14 +130,14 @@ public class UserTaskTest extends WorkflowActivitiTest {
     }
 
     /**
-     * Tests for 400 when required start form properties are not passed.
+     * Tests for error handling for invalid or missing Activiti form properties for task completion.
      *
      * @throws Exception
      * @throws WebApplicationException
      */
     @Test(expected = WebApplicationException.class)
     @Category(BuildTests.class)
-    public void testMissingFormPropertiesPost() throws WebApplicationException, Exception {
+    public void testMissingFormProperties() throws WebApplicationException, Exception {
         // setup
         deploymentId = createDefinition("xml", "DailySalesReport.bpmn20.xml");
 

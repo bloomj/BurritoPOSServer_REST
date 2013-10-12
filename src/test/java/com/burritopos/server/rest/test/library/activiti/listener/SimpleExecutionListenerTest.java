@@ -55,6 +55,6 @@ public class SimpleExecutionListenerTest extends WorkflowActivitiTest {
     @Test
     @Category(BuildTests.class)
     public void testSimpleExecutionListenerBPMN() throws Exception {
-        taskInstancePost("SimpleExecutionListener.bpmn20.xml","SimpleExecutionListener");
+        taskInstanceAndComplete("SimpleExecutionListener.bpmn20.xml","SimpleExecutionListener");
     }
 }
