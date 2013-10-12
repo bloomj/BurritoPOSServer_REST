@@ -7,38 +7,20 @@ import org.codehaus.jackson.node.ArrayNode;
 import org.codehaus.jackson.node.ObjectNode;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
 
 import com.burritopos.server.rest.library.activiti.Definition;
 import com.burritopos.server.rest.library.activiti.Instance;
 import com.burritopos.server.rest.library.activiti.UserTask;
 import com.burritopos.server.rest.library.activiti.WorkflowActiviti;
-import com.burritopos.server.rest.test.BuildTests;
-import com.burritopos.server.rest.test.IntegrationTests;
 import com.burritopos.server.rest.test.library.BaseTest;
 
 import javax.ws.rs.WebApplicationException;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
 import java.io.*;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -128,49 +110,6 @@ public class WorkflowActivitiTest extends BaseTest {
      */
     public WorkflowActivitiTest() throws IOException {
 
-    }
-
-    /**
-     * Tests Activiti render form.
-     *
-     * @throws Exception
-     */
-    @Test
-    @Category(IntegrationTests.class)
-    public void testRenderFormGet() throws Exception {
-        // setup
-        deploymentId = createDefinition("xml", "DailySalesReport.bpmn20.xml");
-
-        // get ProcessDefinitionId
-        processDefinitionId = getProcessDefinitionId(testUser.getId().toString(), "DailySalesReport", deploymentId, "");
-        System.out.println("Got processDefinitionId: " + processDefinitionId);
-
-        // get rendered form
-
-        // setup parameters
-        Map<String, String> params = new HashMap<String, String>();
-        params.put("Id", processDefinitionId);
-        params.put("FormType", "Start");
-
-        activitiSvc.getRenderedForm(params);
-    }
-
-    /**
-     * Tests Activiti render form with invalid parameters.
-     *
-     * @throws Exception
-     */
-    @Test
-    @Category(BuildTests.class)
-    public void testInvalidRenderFormGet() throws Exception {
-        // get invalid rendered form
-
-        // setup parameters
-        Map<String, String> params = new HashMap<String, String>();
-        params.put("Id", "");
-        params.put("FormType", "");
-
-        activitiSvc.getRenderedForm(params);
     }
     
     // helper methods for common test functions
@@ -270,13 +209,14 @@ public class WorkflowActivitiTest extends BaseTest {
         // test for success
     	activitiInstanceSvc.deleteProcessInstance(processInstanceId);
     }
-
+    
     /**
      * Gets process definition id from the deployment id.
      * 
      * @param userId
      * @param definitionType
      * @param deploymentId
+     * @param candidateGroup
      * @return
      * @throws Exception
      */
@@ -448,7 +388,7 @@ public class WorkflowActivitiTest extends BaseTest {
      * @param bpmnName
      * @throws Exception
      */
-    protected void taskInstancePost(String bpmnName, String processId) throws Exception {
+    protected void taskInstanceAndComplete(String bpmnName, String processId) throws Exception {
         // setup
         deploymentId = createDefinition("xml", bpmnName);
 
@@ -554,71 +494,6 @@ public class WorkflowActivitiTest extends BaseTest {
         reader.close();
 
         return stringBuilder.toString();
-    }
-
-    /**
-     * Creates an XML document containing the required elements for a template POST including the BPMN/Freemarker template
-     *
-     * @return
-     * @throws TransformerException
-     * @throws SAXException
-     * @throws ParserConfigurationException
-     * @throws IOException
-     */
-    @SuppressWarnings("unused")
-    protected String createTemplateXml(String type, String description, String bpmnContent) throws TransformerException, SAXException, ParserConfigurationException, IOException {
-//        <?xml version="1.0" encoding="UTF-8"?>
-//        <processTemplate>
-//            <type>Draft</type>
-//            <description>Draft template</description>
-//            <bpmnxml>
-//                  template
-//            </bpmnxml>
-//        </processTemplate>
-
-        String bpmnXML = "";
-
-        DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
-        DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
-
-        // root element
-        Document doc = docBuilder.newDocument();
-        Element rootElement = doc.createElement("processTemplate");
-        doc.appendChild(rootElement);
-
-        // create startEvent element
-        Element typeElement = doc.createElement("type");
-        typeElement.appendChild(doc.createTextNode(type));
-        rootElement.appendChild(typeElement);
-
-        // create description element
-        Element descriptionElement = doc.createElement("description");
-        descriptionElement.appendChild(doc.createTextNode(description));
-        rootElement.appendChild(descriptionElement);
-
-        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-        DocumentBuilder builder = factory.newDocumentBuilder();
-        Document templateDoc = builder.parse(new InputSource(new StringReader(bpmnContent)));
-
-        // create bpmn xml element with imported template document
-        Element bpmnXmlElement = doc.createElement("bpmnxml");
-        rootElement.appendChild(bpmnXmlElement);
-        NodeList nodeList = templateDoc.getDocumentElement().getChildNodes();
-        Node root1 = templateDoc.getFirstChild();
-        bpmnXmlElement.appendChild(doc.importNode(root1, true));
-
-        TransformerFactory transformerFactory = TransformerFactory.newInstance();
-        Transformer transformer = transformerFactory.newTransformer();
-        DOMSource source = new DOMSource(doc);
-        StringWriter writer = new StringWriter();
-        StreamResult result = new StreamResult(writer);
-
-        // Output to console for testing
-        transformer.transform(source, result);
-        bpmnXML = writer.toString();
-        System.out.println("full xml: " + bpmnXML);
-
-        return bpmnXML;
     }
     
     /**

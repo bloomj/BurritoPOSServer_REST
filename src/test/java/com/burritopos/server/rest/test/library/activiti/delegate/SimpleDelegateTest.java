@@ -55,6 +55,6 @@ public class SimpleDelegateTest extends WorkflowActivitiTest {
     @Test
     @Category(BuildTests.class)
     public void testSimpleDelegateBPMN() throws Exception {
-        taskInstancePost("SimpleDelegate.bpmn20.xml","SimpleDelegate");
+        taskInstanceAndComplete("SimpleDelegate.bpmn20.xml","SimpleDelegate");
     }
 }
