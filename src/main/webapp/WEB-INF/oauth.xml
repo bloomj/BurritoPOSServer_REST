@@ -26,6 +26,8 @@
 		<sec:intercept-url pattern="/threads" access="ROLE_ADMIN"/>
 		<sec:intercept-url pattern="/metrics" access="ROLE_ADMIN"/>
 		<sec:intercept-url pattern="/ping" access="ROLE_ADMIN"/>
+		<!-- Constrain swagger api endpoint to ROLE_DEVELOPER -->
+		<sec:intercept-url pattern="/api/**" access="ROLE_DEVELOPER"/>
 		<sec:intercept-url pattern="/**" access="ROLE_USER"/>
 		<sec:http-basic />
 	</sec:http>

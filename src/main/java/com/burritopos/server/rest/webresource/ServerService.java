@@ -18,6 +18,7 @@
 package com.burritopos.server.rest.webresource;
 
 import com.sun.jersey.core.spi.factory.ResponseBuilderImpl;
+import com.wordnik.swagger.annotations.*;
 import com.yammer.metrics.annotation.Timed;
 
 import org.apache.log4j.Logger;
@@ -41,6 +42,8 @@ import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
  *
  */
 @Path("/")
+@Api(value = "/", description = "Burrito POS Server via REST")
+@Produces({"application/json"})
 @SuppressWarnings("unused")
 public class ServerService {
     private static Logger dLog = Logger.getLogger(ServerService.class);    
@@ -71,15 +74,18 @@ public class ServerService {
      * @return
      * @throws Exception
      */
-    @Path("/login")
     @POST
+    @Path("/login")
+    @ApiOperation(value = "Login user", notes = "Mimics old socket login function; Deprecated in favor of OAuth 2.0", httpMethod = "POST", response = Response.class)
+    @ApiResponses(value = {
+      @ApiResponse(code = 410, message = "Method deprecated")
+    })
     @Timed
     @Consumes(APPLICATION_JSON)
     @Produces(APPLICATION_JSON)
     public Response login(@Context HttpHeaders headers,
 				            @Context UriInfo ui,
-				            @PathParam("username") String username,
-				            String payload
+				            @ApiParam(name = "payload", value = "Method Payload", allowableValues = "{Username: '', Password: ''}", required = true) String payload
     ) throws Exception {
     	ResponseBuilderImpl builder = new ResponseBuilderImpl();
     	ObjectNode rootNode = mapper.createObjectNode();
