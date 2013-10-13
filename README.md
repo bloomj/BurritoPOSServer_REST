@@ -38,7 +38,8 @@ Be sure the CATALINA_HOME environment variable is correctly configured before bu
 
 * BurritoPOSServer.jar installed locally: 
 
-```mvn install:install-file -Dfile=BurritoPOSServer.jar -DgroupId=com.burritopos.server -DartifactId=neatoBurrito.server -Dversion=1.0.0-SNAPSHOT -Dpackaging=jar```
+```mvn install:install-file -Dfile=BurritoPOSServer.jar -DgroupId=com.burritopos.server 
+-DartifactId=neatoBurrito.server -Dversion=1.0.0-SNAPSHOT -Dpackaging=jar```
 
 Activiti will automatically setup the necessary schema so no pre-initialization of tables are necessary as long as a blank table named 'activiti' exists in PostGRES.
 
@@ -55,9 +56,9 @@ The following servlets are initialized with the burritopos web service and can b
  * Ping servlet
  	* /burritopos-service/ping
 
- BurritoPOS web service utilizes [Swagger](https://github.com/wordnik/swagger-core/wiki) for REST API Documentation
+BurritoPOS web service utilizes [Swagger](https://github.com/wordnik/swagger-core/wiki) for REST API Documentation
  
- The default servlet is initialized at the following URL:
+The default servlet is initialized at the following URL:
  
  * API servlet
  	* /burritopos-service/api
