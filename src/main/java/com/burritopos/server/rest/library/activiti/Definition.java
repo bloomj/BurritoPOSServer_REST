@@ -12,6 +12,7 @@ import org.apache.log4j.Logger;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.node.ArrayNode;
 import org.codehaus.jackson.node.ObjectNode;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 import java.io.FileInputStream;
@@ -41,6 +42,7 @@ public class Definition extends WorkflowActiviti {
      * @return
      * @throws Exception
      */
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public String createProcessDefinition(Map<String, String> parameters, String payload) throws Exception {
         dLog.trace("payload: " + payload);
 
@@ -126,6 +128,7 @@ public class Definition extends WorkflowActiviti {
      * @param deploymentId
      * @throws Exception
      */
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public void deleteProcessDefinition(String deploymentId) throws Exception {
     	dLog.trace("in delete process definition");
         ObjectNode rootNode = mapper.createObjectNode();
