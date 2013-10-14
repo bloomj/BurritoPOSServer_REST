@@ -39,6 +39,7 @@ public class BaseTest extends BaseTestCase {
     // test entities
     protected static IUserSvc userSvc;
     protected static User testUser;
+    protected static User testAdmin;
     protected static IGroupSvc groupSvc;
     protected static Group testUserGroup;
     protected static Group testAdminGroup;
@@ -101,12 +102,21 @@ public class BaseTest extends BaseTestCase {
         testUser = new User();
         testUser.setId(rand.nextInt());
         testUser.addGroupId(testUserGroup.getId());
-        testUser.addGroupId(testAdminGroup.getId());
         testUser.setUserName(USER_USERNAME_STR);
         testUser.setPassword(USER_PASSWORD_STR);
         
         userSvc.storeUser(testUser);
         assertNotNull(userSvc.getUser(testUser.getId()));
+        
+        testAdmin = new User();
+        testAdmin.setId(rand.nextInt());
+        testAdmin.addGroupId(testUserGroup.getId());
+        testAdmin.addGroupId(testAdminGroup.getId());
+        testAdmin.setUserName(ADMIN_USERNAME_STR);
+        testAdmin.setPassword(USER_PASSWORD_STR);
+        
+        userSvc.storeUser(testAdmin);
+        assertNotNull(userSvc.getUser(testAdmin.getId()));
     }
 
     /**
@@ -124,6 +134,9 @@ public class BaseTest extends BaseTestCase {
         
         userSvc.deleteUser(testUser.getId());
     	assertNull(userSvc.getUser(testUser.getId()).getUserName());
+    	
+        userSvc.deleteUser(testAdmin.getId());
+    	assertNull(userSvc.getUser(testAdmin.getId()).getUserName());
     }
     
     /**

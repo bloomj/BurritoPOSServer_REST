@@ -63,14 +63,7 @@ public class WorkflowActivitiTest extends BaseTest {
         processDefinitionId = "";
         processInstanceId = "";
         
-        // set OAuth principal for test user
-        String[] roles = new String[testUser.getGroupId().size()];
-        for(int i=0; i<testUser.getGroupId().size(); i++) {
-        	roles[i] = groupSvc.getGroup(testUser.getGroupId().get(i)).getName();
-        }
-        User userPrincipal = new User(testUser.getUserName(), testUser.getPassword(), true, true, true, true, AuthorityUtils.createAuthorityList(roles));
-        Authentication userAuth = new UsernamePasswordAuthenticationToken(userPrincipal, userPrincipal.getAuthorities());
-        SecurityContextHolder.getContext().setAuthentication(userAuth);
+        updatePrincipal(testUser);
     }
 
     /**
@@ -115,6 +108,25 @@ public class WorkflowActivitiTest extends BaseTest {
     // helper methods for common test functions
 
     /**
+     * Updates principal context
+     * 
+     * @param user
+     * @throws Exception
+     */
+    protected void updatePrincipal(com.burritopos.server.domain.User user) throws Exception {
+    	System.out.println("Setting Security Principal to: " + user.getUserName());
+    	
+        // set OAuth principal for test user
+        String[] roles = new String[user.getGroupId().size()];
+        for(int i=0; i<user.getGroupId().size(); i++) {
+        	roles[i] = groupSvc.getGroup(user.getGroupId().get(i)).getName();
+        }
+        User userPrincipal = new User(user.getUserName(), user.getPassword(), true, true, true, true, AuthorityUtils.createAuthorityList(roles));
+        Authentication userAuth = new UsernamePasswordAuthenticationToken(userPrincipal, user.getPassword());
+        SecurityContextHolder.getContext().setAuthentication(userAuth);
+    }
+    
+    /**
      * Creates Activiti deployment.
      *
      * @return deployment id
@@ -138,6 +150,9 @@ public class WorkflowActivitiTest extends BaseTest {
             rootNode.put("filename", "adhoc1.bpmn20.xml");
         }
 
+        // ensure user has admin role
+        updatePrincipal(testAdmin);
+        
         // parameters are not used yet so null is acceptable for now
         String responsePayload = activitiDefinitionSvc.createProcessDefinition(null, rootNode.toString());
         responseJson = mapper.readTree(responsePayload);
@@ -152,6 +167,8 @@ public class WorkflowActivitiTest extends BaseTest {
         System.out.println("Created deployment: " + responseJson.get("Id").asText());
         System.out.println("   ");
 
+        updatePrincipal(testUser);
+        
         return responseJson.get("Id").asText();
     }
 
@@ -162,8 +179,13 @@ public class WorkflowActivitiTest extends BaseTest {
      * @throws Exception
      */
     protected void deleteDefinition(String deploymentId) throws Exception {
+    	// ensure user has admin role
+        updatePrincipal(testAdmin);
+        
         // test for success
     	activitiDefinitionSvc.deleteProcessDefinition(deploymentId);
+    	
+    	updatePrincipal(testUser);
     }
 
     /**
@@ -184,7 +206,7 @@ public class WorkflowActivitiTest extends BaseTest {
         ArrayNode embeddedArray = new ArrayNode(factory);
         embeddedArray.add(formPropJson);
         rootNode.put("StartFormProperties", embeddedArray);
-
+        
         try {
 	        String responsePayload = activitiInstanceSvc.createProcessInstance(rootNode.toString());
 	        responseJson = mapper.readTree(responsePayload);

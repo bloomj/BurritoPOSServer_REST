@@ -17,7 +17,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
  *
  */
 public class UserDetailsServiceTest extends BaseTest {  
-	private static UserDetailsService oauthDataProvider;
+	private static UserDetailsService userDetailsSvc;
 	
     /**
      * Setups common test code for class
@@ -32,7 +32,7 @@ public class UserDetailsServiceTest extends BaseTest {
         ClassPathXmlApplicationContext beanfactory = null;
         try {
             beanfactory = new ClassPathXmlApplicationContext(SPRING_CONFIG_DEFAULT);
-            oauthDataProvider = (UserDetailsService)beanfactory.getBean("oauthDataProvider");
+            userDetailsSvc = (UserDetailsService)beanfactory.getBean("userDetailsSvc");
         } catch (Exception e) {
         	System.out.println("Unable to set Spring bean");
         	e.printStackTrace();
@@ -61,7 +61,7 @@ public class UserDetailsServiceTest extends BaseTest {
     @Test
     @Category(BuildTests.class)
     public void testLoadUserByUsername() throws Exception {
-    	UserDetails user = oauthDataProvider.loadUserByUsername(USER_USERNAME_STR);
+    	UserDetails user = userDetailsSvc.loadUserByUsername(USER_USERNAME_STR);
     	
     	assertNotNull(user);
     	assertNotNull(user.getUsername());
@@ -77,6 +77,6 @@ public class UserDetailsServiceTest extends BaseTest {
     @Test(expected = UsernameNotFoundException.class)
     @Category(BuildTests.class)
     public void testInvalidLoadUserByUsername() throws Exception {
-    	oauthDataProvider.loadUserByUsername("Invalid_User");
+    	userDetailsSvc.loadUserByUsername("Invalid_User");
     }
 }

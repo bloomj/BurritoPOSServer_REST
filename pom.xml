@@ -264,6 +264,11 @@
             <version>${aspectj.version}</version>
         </dependency>
         <dependency>
+	       	<groupId>org.aspectj</groupId>
+	        <artifactId>aspectjtools</artifactId>
+	        <version>${aspectj.version}</version>
+	    </dependency>
+        <dependency>
         	<groupId>org.activiti</groupId>
             <artifactId>activiti-engine</artifactId>
             <version>${activiti.version}</version>
@@ -459,6 +464,10 @@
 	<dependency>
        	<groupId>org.aspectj</groupId>
         <artifactId>aspectjrt</artifactId>
+    </dependency>
+    <dependency>
+       	<groupId>org.aspectj</groupId>
+        <artifactId>aspectjtools</artifactId>
     </dependency>
     <!-- Dependencies for Activiti -->
     <dependency>
