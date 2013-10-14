@@ -20,7 +20,7 @@
 
 	<!-- Auto-config most of the spring security settings
 		Set to HTTP-BASIC for REST endpoints -->
-	<sec:http create-session="never" auto-config="true" access-denied-page="/denied.jsp">
+	<sec:http create-session="never" auto-config="true">
 		<!-- Constrain yammer.metrics endpoints to ROLE_ADMIN -->
 		<sec:intercept-url pattern="/healthcheck" access="ROLE_ADMIN"/>
 		<sec:intercept-url pattern="/threads" access="ROLE_ADMIN"/>
@@ -30,10 +30,15 @@
 		<sec:intercept-url pattern="/api/**" access="ROLE_DEVELOPER"/>
 		<sec:intercept-url pattern="/**" access="ROLE_USER"/>
 		<sec:http-basic />
+		<sec:access-denied-handler ref="accessDeniedHandler" />
 		<sec:session-management session-fixation-protection="none" />
 	</sec:http>
 
+	<!-- User Details Service -->
 	<bean id="userDetailsSvc" class="com.burritopos.server.rest.security.dao.mongo.UserDetailsDAO" scope="singleton"/>
+	
+	<!-- Access Denied Handler -->
+	<bean id="accessDeniedHandler" class="org.springframework.security.oauth2.provider.error.OAuth2AccessDeniedHandler"/>
 
 	<bean id="daoAuthenticationProvider" class="org.springframework.security.authentication.dao.DaoAuthenticationProvider">
 	  	<property name="userDetailsService" ref="userDetailsSvc"/>
