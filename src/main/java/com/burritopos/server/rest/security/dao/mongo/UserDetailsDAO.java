@@ -1,4 +1,4 @@
-package com.burritopos.server.rest.security.dao;
+package com.burritopos.server.rest.security.dao.mongo;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,8 +14,8 @@ import com.burritopos.server.service.dao.IUserSvc;
 import com.yammer.metrics.Metrics;
 import com.yammer.metrics.core.Counter;
 
-public class OAuthMongoDAO implements UserDetailsService {
-	private static Logger dLog = Logger.getLogger(OAuthMongoDAO.class);
+public class UserDetailsDAO implements UserDetailsService {
+	private static Logger dLog = Logger.getLogger(UserDetailsDAO.class);
 	
 	@Autowired
     private IUserSvc userSvc;
@@ -41,7 +41,7 @@ public class OAuthMongoDAO implements UserDetailsService {
 					roles[i] = groupSvc.getGroup(tUser.getGroupId().get(i)).getName();
 					dLog.trace("Added role: " + roles[i]);
 				}
-				
+
 				user = new User(username, tUser.getPassword(), true, true, true, true, AuthorityUtils.createAuthorityList(roles));
 				loginCounter.inc();
 			}

@@ -10,6 +10,7 @@ import com.burritopos.server.rest.test.BuildTests;
 import com.burritopos.server.rest.test.IntegrationTests;
 
 import javax.ws.rs.WebApplicationException;
+import org.springframework.security.access.AccessDeniedException;
 import java.io.*;
 
 /**
@@ -110,6 +111,20 @@ public class DefinitionTest extends WorkflowActivitiTest {
     }
 
     /**
+     * Tests for AccessDeniedException from Definition library from Spring Security for unauthorized user.
+     *
+     * @throws Exception
+     */
+    @Test(expected = AccessDeniedException.class)
+    @Category(BuildTests.class)
+    public void testDeniedProcessDefinitionCreate() throws Exception {
+    	System.out.println("Testing blank rootNode");
+        ObjectNode rootNode = mapper.createObjectNode();
+        String responsePayload = activitiDefinitionSvc.createProcessDefinition(null, rootNode.toString());
+        responseJson = mapper.readTree(responsePayload);
+    }
+    
+    /**
      * Tests for error handling from Definition library via invalid acceptable media type and missing payload values.
      *
      * @throws Exception
@@ -117,6 +132,9 @@ public class DefinitionTest extends WorkflowActivitiTest {
     @Test(expected = WebApplicationException.class)
     @Category(BuildTests.class)
     public void testInvalidProcessDefinitionCreate() throws Exception {
+    	// ensure user has admin role
+        updatePrincipal(testAdmin);
+    	
     	System.out.println("Testing blank rootNode");
         ObjectNode rootNode = mapper.createObjectNode();
         String responsePayload = activitiDefinitionSvc.createProcessDefinition(null, rootNode.toString());
@@ -179,6 +197,17 @@ public class DefinitionTest extends WorkflowActivitiTest {
     }
 
     /**
+     * Tests for AccessDeniedException from Definition library from Spring Security for unauthorized user.
+     *
+     * @throws Exception
+     */
+    @Test(expected = AccessDeniedException.class)
+    @Category(BuildTests.class)
+    public void testDeniedProcessDefinitionDelete() throws Exception {    
+    	activitiDefinitionSvc.deleteProcessDefinition("INVALID_ID");
+    }
+    
+    /**
      * Tests for WebApplicationException from Definition library via blank deployment id and invalid deployment id.
      *
      * @throws Exception
@@ -186,6 +215,9 @@ public class DefinitionTest extends WorkflowActivitiTest {
     @Test(expected = WebApplicationException.class)
     @Category(BuildTests.class)
     public void testInvalidProcessDefinitionDelete() throws Exception {
+    	// ensure user has admin role
+        updatePrincipal(testAdmin);
+        
     	activitiDefinitionSvc.deleteProcessDefinition("INVALID_ID");
     }
 }

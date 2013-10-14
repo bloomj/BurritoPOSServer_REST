@@ -20,7 +20,7 @@
 
 	<!-- Auto-config most of the spring security settings
 		Set to HTTP-BASIC for REST endpoints -->
-	<sec:http auto-config="true" access-denied-page="/denied.jsp">
+	<sec:http create-session="never" auto-config="true" access-denied-page="/denied.jsp">
 		<!-- Constrain yammer.metrics endpoints to ROLE_ADMIN -->
 		<sec:intercept-url pattern="/healthcheck" access="ROLE_ADMIN"/>
 		<sec:intercept-url pattern="/threads" access="ROLE_ADMIN"/>
@@ -30,15 +30,22 @@
 		<sec:intercept-url pattern="/api/**" access="ROLE_DEVELOPER"/>
 		<sec:intercept-url pattern="/**" access="ROLE_USER"/>
 		<sec:http-basic />
+		<sec:session-management session-fixation-protection="none" />
 	</sec:http>
 
-	<bean id="oauthDataProvider" class="com.burritopos.server.rest.security.dao.OAuthMongoDAO" scope="singleton"/>
+	<bean id="userDetailsSvc" class="com.burritopos.server.rest.security.dao.mongo.UserDetailsDAO" scope="singleton"/>
+
+	<bean id="daoAuthenticationProvider" class="org.springframework.security.authentication.dao.DaoAuthenticationProvider">
+	  	<property name="userDetailsService" ref="userDetailsSvc"/>
+	</bean>
 
 	<!-- Specifies that the oauth 2 authorization and token endpoints should be created in the application context. These are
 				implemented as regular Spring @Controller beans, so as long as the default Spring MVC set up in
 				present in the application the endpoints should work (at /oauth/authorization and /oauth/token by default). -->
     <authentication-manager xmlns="http://www.springframework.org/schema/security">
-		<authentication-provider user-service-ref="oauthDataProvider" />
+		<authentication-provider ref="daoAuthenticationProvider" />
 	</authentication-manager>
+	
+	<sec:global-method-security pre-post-annotations="enabled"/>
 	
 </beans>
