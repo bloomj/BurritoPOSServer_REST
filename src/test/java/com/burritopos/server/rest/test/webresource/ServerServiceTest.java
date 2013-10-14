@@ -60,10 +60,10 @@ public class ServerServiceTest extends BaseServiceCoreTest {
     public void testLoginPOST() throws Exception {
     	// build payload
     	rootNode = mapper.createObjectNode();
-    	rootNode.put("Username", tUser.getUserName());
-    	rootNode.put("Password", "password");
+    	rootNode.put("Username", testUser.getUserName());
+    	rootNode.put("Password", testUser.getPassword());
     	
-    	responseJson = sendRequest("POST", "login", "", rootNode, new MultivaluedMapImpl(), 410);
+    	responseJson = sendRequest("POST", "login", "", rootNode, new MultivaluedMapImpl(), 410, testUser);
     	
     	assertNotNull(responseJson.get("Status"));
     	assertEquals("Login has been deprecated in favor of OAuth", responseJson.get("Status").asText());

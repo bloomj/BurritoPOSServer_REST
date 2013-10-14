@@ -68,7 +68,11 @@ public class BaseTest extends BaseTestCase {
      * @throws Exception
      */
     @BeforeClass 
-    public static void setUpClass() throws Exception {      
+    public static void setUpClass() throws Exception { 
+        System.out.println("   ");
+        System.out.println("   ");
+        System.out.println("*** Setting up test class ***");
+        
         //Spring Framework IoC
         ClassPathXmlApplicationContext beanfactory = null;
         try {
@@ -126,6 +130,10 @@ public class BaseTest extends BaseTestCase {
      */
     @AfterClass 
     public static void tearDownClass() throws Exception { 
+        System.out.println("   ");
+        System.out.println("   ");
+        System.out.println("*** Tearing down test class ***");
+        
         groupSvc.deleteGroup(testUserGroup.getId());
         assertNull(groupSvc.getGroup(testUserGroup.getId()).getName());
         

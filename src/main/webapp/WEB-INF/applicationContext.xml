@@ -77,4 +77,9 @@
 	<bean id="serverService" class="com.burritopos.server.rest.webresource.ServerService" scope="singleton">
 		<property name="server" ref="burritoServer" />
 	</bean>
+	
+	<!-- com.burritopos.server.rest.webresource.activiti -->
+	<bean id="processDefinition" class="com.burritopos.server.rest.webresource.activiti.ProcessDefinition" scope="singleton">
+		<property name="definitionSvc" ref="activitiDefinitionSvc" />
+	</bean>
 </beans>
