@@ -1,5 +1,7 @@
 package com.burritopos.server.rest.test.webresource;
 
+import java.util.Random;
+
 import com.burritopos.server.domain.Group;
 import com.burritopos.server.domain.User;
 import com.burritopos.server.service.crypto.BCrypt;
@@ -53,12 +55,23 @@ public class BaseServiceCoreTest extends AbstractSpringAwareJerseyTest {
 	
     public static final String PACKAGE_NAME = "com.burritopos.server.rest";
     protected ObjectNode rootNode;
+    protected static final Random rand = new Random();
     
     // test entities
     protected static IUserSvc userSvc;
+    protected static User testUser;
+    protected static User testAdmin;
     protected static IGroupSvc groupSvc;
-    protected static User tUser;
-    protected static Group tGroup;
+    protected static Group testUserGroup;
+    protected static Group testAdminGroup;
+    
+    // Static strings
+    protected static final String USER_USERNAME_STR = "Test_User";
+    protected static final String USER_PASSWORD_STR = BCrypt.hashpw("password", BCrypt.gensalt());
+    protected static final String ADMIN_USERNAME_STR = "Test_Admin";
+    protected static final String ADMIN_PASSWORD_STR = USER_PASSWORD_STR;
+    protected static final String USER_ROLE_STR = "ROLE_USER";
+    protected static final String ADMIN_ROLE_STR = "ROLE_ADMIN";
     
     /**
      * Sets up the necessary code to run the tests.
@@ -87,21 +100,38 @@ public class BaseServiceCoreTest extends AbstractSpringAwareJerseyTest {
             }
         }
         
-        tGroup = new Group();
-        tGroup.setId(56);
-        tGroup.setName("ROLE_USER");
+        testUserGroup = new Group();
+        testUserGroup.setId(rand.nextInt());
+        testUserGroup.setName(USER_ROLE_STR);
         
-        groupSvc.storeGroup(tGroup);
-        assertNotNull(groupSvc.getGroup(tGroup.getId()));
+        groupSvc.storeGroup(testUserGroup);
+        assertNotNull(groupSvc.getGroup(testUserGroup.getId()));
         
-        tUser = new User();
-        tUser.setId(123);
-        tUser.addGroupId(56);
-        tUser.setUserName("Test_User");
-        tUser.setPassword(BCrypt.hashpw("password", BCrypt.gensalt()));
+        testAdminGroup = new Group();
+        testAdminGroup.setId(rand.nextInt());
+        testAdminGroup.setName(ADMIN_ROLE_STR);
         
-        userSvc.storeUser(tUser);
-        assertNotNull(userSvc.getUser(tUser.getId()));
+        groupSvc.storeGroup(testAdminGroup);
+        assertNotNull(groupSvc.getGroup(testAdminGroup.getId()));
+        
+        testUser = new User();
+        testUser.setId(rand.nextInt());
+        testUser.addGroupId(testUserGroup.getId());
+        testUser.setUserName(USER_USERNAME_STR);
+        testUser.setPassword(USER_PASSWORD_STR);
+        
+        userSvc.storeUser(testUser);
+        assertNotNull(userSvc.getUser(testUser.getId()));
+        
+        testAdmin = new User();
+        testAdmin.setId(rand.nextInt());
+        testAdmin.addGroupId(testUserGroup.getId());
+        testAdmin.addGroupId(testAdminGroup.getId());
+        testAdmin.setUserName(ADMIN_USERNAME_STR);
+        testAdmin.setPassword(USER_PASSWORD_STR);
+        
+        userSvc.storeUser(testAdmin);
+        assertNotNull(userSvc.getUser(testAdmin.getId()));
     }
 
     /**
@@ -116,11 +146,17 @@ public class BaseServiceCoreTest extends AbstractSpringAwareJerseyTest {
         System.out.println("*** Tearing down test class ***");
 
         try {
-        	userSvc.deleteUser(tUser.getId());
-        	assertNull(userSvc.getUser(tUser.getId()).getUserName());
+            groupSvc.deleteGroup(testUserGroup.getId());
+            assertNull(groupSvc.getGroup(testUserGroup.getId()).getName());
+            
+            groupSvc.deleteGroup(testAdminGroup.getId());
+            assertNull(groupSvc.getGroup(testAdminGroup.getId()).getName());
+            
+            userSvc.deleteUser(testUser.getId());
+        	assertNull(userSvc.getUser(testUser.getId()).getUserName());
         	
-        	groupSvc.deleteGroup(tGroup.getId());
-        	assertNull(groupSvc.getGroup(tGroup.getId()).getName());
+            userSvc.deleteUser(testAdmin.getId());
+        	assertNull(userSvc.getUser(testAdmin.getId()).getUserName());
         }
         catch(Exception e) {
         	fail(e.getMessage());
@@ -156,12 +192,12 @@ public class BaseServiceCoreTest extends AbstractSpringAwareJerseyTest {
      * @param params    REST parameters
      * @throws Exception 
      */
-    protected JsonNode sendRequest(String method, String path, String parameter, ObjectNode rootNode, MultivaluedMap<String, String> params, int statusCode) throws Exception {
+    protected JsonNode sendRequest(String method, String path, String parameter, ObjectNode rootNode, MultivaluedMap<String, String> params, int statusCode, User user) throws Exception {
         //path = DEFAULT_URI + path;
     	System.out.println("URI: " + DEFAULT_URI);
     	System.out.println("path: " + path);
         Client c = Client.create();
-        c.addFilter(new HTTPBasicAuthFilter(tUser.getUserName(), tUser.getPassword()));
+        c.addFilter(new HTTPBasicAuthFilter(user.getUserName(), user.getPassword()));
         ws = c.resource(DEFAULT_URI).path(path);
         
     	if (method.equals("DELETE")) {
