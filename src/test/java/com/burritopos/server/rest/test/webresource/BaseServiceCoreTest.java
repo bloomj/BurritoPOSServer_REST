@@ -227,10 +227,10 @@ public class BaseServiceCoreTest extends AbstractSpringAwareJerseyTest {
             }
         }
 
-    	// now get the response entity
-    	String responsePayload = response.getEntity(String.class);
-
-    	if(responsePayload != null) {
+    	if(response.getStatus() != Response.Status.NO_CONTENT.getStatusCode()) {
+    		// now get the response entity
+        	String responsePayload = response.getEntity(String.class);
+        	
     		try {
 	    		responseJson = mapper.readTree(responsePayload);
 	    		System.out.println("Returned: " + response.getStatus() + " " + responsePayload);

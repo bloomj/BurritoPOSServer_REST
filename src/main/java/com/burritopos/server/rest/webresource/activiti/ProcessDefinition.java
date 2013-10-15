@@ -79,6 +79,7 @@ public class ProcessDefinition {
     @ApiResponses(value = {
       @ApiResponse(code = 201, message = "Created"),
       @ApiResponse(code = 400, message = "Bad Request"),
+      @ApiResponse(code = 403, message = "Access Denied"),
       @ApiResponse(code = 500, message = "Server Error")
     })
     @Timed
@@ -108,5 +109,33 @@ public class ProcessDefinition {
     	} else {
     		return Response.status(Response.Status.BAD_REQUEST).entity(response).build();
     	}     
+    }
+    
+    /**
+     * Deletes an Activiti deployment definition based on deployment id.
+     *
+     * @param headers
+     * @param ui
+     * @return
+     * @throws Exception
+     */
+    @Path("/{deploymentId}")
+    @DELETE
+    @ApiOperation(value = "Delete Activiti Process Definition", notes = "Deletes Process Definition in Activiti", httpMethod = "DELETE", response = Response.class)
+    @ApiResponses(value = {
+      @ApiResponse(code = 204, message = "No Content"),
+      @ApiResponse(code = 403, message = "Access Denied"),
+      @ApiResponse(code = 404, message = "Not Found"),
+      @ApiResponse(code = 500, message = "Server Error")
+    })
+    @Timed
+    @Produces(APPLICATION_JSON)
+    public Response deleteProcessDefinition(@Context HttpHeaders headers,
+                                            @Context UriInfo ui,
+                                            @ApiParam(name = "deploymentId", value = "Activiti Deployment ID", required = true) 
+    										@PathParam("deploymentId") String deploymentId
+    ) throws Exception {
+    	definitionSvc.deleteProcessDefinition(deploymentId);
+    	return Response.noContent().build();
     }
 }
