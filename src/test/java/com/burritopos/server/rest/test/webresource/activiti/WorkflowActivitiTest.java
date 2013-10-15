@@ -4,10 +4,15 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
+import java.util.Iterator;
 
+import com.burritopos.server.domain.User;
 import com.burritopos.server.rest.test.webresource.BaseServiceCoreTest;
+import com.sun.jersey.core.util.MultivaluedMapImpl;
 
 import org.apache.commons.io.IOUtils;
+import org.codehaus.jackson.JsonNode;
+import org.codehaus.jackson.node.ArrayNode;
 import org.codehaus.jackson.node.ObjectNode;
 import org.junit.After;
 import org.junit.Before;
@@ -16,6 +21,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Runner class for the Burrito POS service to test the REST functionality for Process Definition.
@@ -130,6 +136,49 @@ public class WorkflowActivitiTest extends BaseServiceCoreTest {
         responseJson = sendRequest("DELETE", "processdefinition/" + deploymentId, "", null, null, 204, testAdmin);
 
         assertNull(responseJson);
+    }
+    
+    /**
+     * Gets process definition id from the deployment id.
+     *
+     * @param deploymentId
+     * @return
+     * @throws Exception 
+     */
+    protected String getProcessDefinitionId(String deploymentId, String type, User user) throws Exception {
+        String processDefinitionId = "";
+
+        // test we have the newly created process definition
+        MultivaluedMapImpl params = new MultivaluedMapImpl();
+        if(!type.isEmpty()) {
+        	params.add("Type", type);
+        }
+        if(user.getUserName().equals(ADMIN_USERNAME_STR)) {
+        	params.add("ShowAll", true);
+        }
+        responseJson = sendRequest("GET", "processdefinition", "", null, params, 200, user);
+
+        ArrayNode definitionList = (ArrayNode) responseJson.get("ProcessDefinitionList");
+        assertTrue(definitionList.size() > 0);
+
+        Iterator<JsonNode> childNodes = definitionList.getElements();
+        boolean deploymentExists = false;
+        while (childNodes.hasNext()) {
+            JsonNode childJson = childNodes.next();
+            System.out.println("Got child node: " + childJson.toString());
+
+            System.out.println("child id: " + childJson.get("DeploymentId").asText() + " | deploymentId: " + deploymentId);
+            if (deploymentId.equals(childJson.get("DeploymentId").asText())) {
+                deploymentExists = true;
+                processDefinitionId = childJson.get("Id").asText();
+            }
+        }
+
+        if (!deploymentId.isEmpty()) {
+            assertTrue(deploymentExists);
+        }
+
+        return processDefinitionId;
     }
     
     /**
