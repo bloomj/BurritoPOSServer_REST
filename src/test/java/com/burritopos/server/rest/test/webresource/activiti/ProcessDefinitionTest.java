@@ -178,4 +178,46 @@ public class ProcessDefinitionTest extends WorkflowActivitiTest {
     	
         sendRequest("DELETE", "processdefinition/INVALID_ID", "", null, null, 404, testAdmin);
     }
+    
+    /**
+     * Tests for 200 response to a GET method to path /processdefinition and verifies the response payload.
+     * @throws Exception 
+     */
+    @Test
+    @Category(BuildTests.class)
+    public void testProcessDefinitionGet() throws Exception {
+        // create definition
+        deploymentId = createDefinition("xml", "DailySalesReport.bpmn20.xml");
+
+        // get list of process definitions
+        getProcessDefinitionId(deploymentId, "", testUser);
+        
+        // get list of DailySalesReport process definitions
+        getProcessDefinitionId(deploymentId, "DailySalesReport", testUser);
+        
+        // get list of all process definitions via test admin
+        getProcessDefinitionId(deploymentId, "DailySalesReport", testAdmin);
+    }
+    
+    /**
+     * Tests for 4XX response to a GET method to path /processdefinition via invalid acceptable media type.
+     * @throws Exception 
+     */
+    @Test
+    @Category(BuildTests.class)
+    public void testInvalidProcessDefinitionGet() throws Exception {
+        System.out.println("Sending GET to path /processdefinition with invalid media type");
+
+        Client c = Client.create();
+        c.addFilter(new HTTPBasicAuthFilter(testUser.getUserName(), testUser.getPassword()));
+        ws = c.resource(DEFAULT_URI).path("processdefinition");
+        response = ws.type(MediaType.APPLICATION_XML).post(ClientResponse.class);
+
+        // now get the response entity
+        String responsePayload = response.getEntity(String.class);
+        System.out.println("Returned: " + responsePayload);
+        System.out.println("   ");
+
+        assertEquals(415, response.getStatus());
+    }
 }
