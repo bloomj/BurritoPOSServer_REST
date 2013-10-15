@@ -138,4 +138,39 @@ public class ProcessDefinition {
     	definitionSvc.deleteProcessDefinition(deploymentId);
     	return Response.noContent().build();
     }
+    
+    /**
+     * Gets list of process definitions for user.
+     * 
+     * @param headers
+     * @param ui
+     * @return
+     * @throws Exception
+     */
+    @GET
+    @ApiOperation(value = "Gets Activiti Process Definition List", notes = "Gets Activiti Process Definition List", httpMethod = "GET", response = Response.class)
+    @ApiResponses(value = {
+      @ApiResponse(code = 200, message = "OK")
+    })
+    @Timed
+    @Consumes(APPLICATION_JSON)
+    @Produces(APPLICATION_JSON)
+    public Response getProcessDefinitionList(@Context HttpHeaders headers,
+                                             @Context UriInfo ui
+    ) throws Exception {	
+    	MultivaluedMap<String, String> queryParameters = ui.getQueryParameters();
+    	Map<String, String> queryParams = BurritoPOSUtils.parseMultivaluedMap(queryParameters);
+
+    	String type = "";
+    	if(queryParams.get("Type") != null) {
+    		type = queryParams.get("Type");
+    	}
+    	
+    	boolean showAll = false;
+    	if(queryParams.get("ShowAll") != null) {
+    		showAll = Boolean.getBoolean(queryParams.get("ShowAll"));
+    	}
+
+    	return Response.ok(definitionSvc.getProcessDefinitionList(type, showAll)).build();
+    }
 }
