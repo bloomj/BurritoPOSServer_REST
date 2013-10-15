@@ -68,11 +68,11 @@ public class ProcessDefinitionTest extends WorkflowActivitiTest {
     }
     
     /**
-     * Tests for 4XX response to a POST method to path /processdefinition via invalid acceptable media type and missing payload values.
+     * Tests for 403 response to a POST method to path /processdefinition via invalid credentials.
      * @throws Exception 
      */
     @Test
-    @Category(IntegrationTests.class)
+    @Category(BuildTests.class)
     public void testDeniedProcessDefinitionPost() throws Exception {
         System.out.println("Sending POST to path /processdefinition with invalid credentials");
 
@@ -142,5 +142,40 @@ public class ProcessDefinitionTest extends WorkflowActivitiTest {
         rootNode.put("filename", "BADXML.bpmn20.xml");
         rootNode.put("name", "TestBPMN");
         sendRequest("POST", "processdefinition", "name", rootNode, null, 500, testAdmin);
+    }
+    
+    /**
+     * Tests for 200 response to a DELETE method to path /processdefinition and verifies the response payload.
+     * @throws Exception 
+     */
+    @Test
+    @Category(BuildTests.class)
+    public void testProcessDefinitionDelete() throws Exception {
+        // setup
+        deploymentId = createDefinition("xml", "DailySalesReport.bpmn20.xml");
+    }
+    
+    /**
+     * Tests for 403 response to a DELETE method to path /processdefinition via invalid credentials.
+     * @throws Exception 
+     */
+    @Test
+    @Category(BuildTests.class)
+    public void testDeniedProcessDefinitionDelete() throws Exception {
+        System.out.println("Sending DELETE to path /processdefinition with invalid credentials");
+
+        sendRequest("DELETE", "processdefinition/INVALID_ID", "", null, null, 403, testUser);
+    }
+
+    /**
+     * Tests for 404 response to a DELETE method to path /processdefinition via blank deployment id and invalid deployment id.
+     * @throws Exception 
+     */
+    @Test
+    @Category(BuildTests.class)
+    public void testInvalidProcessDefinitionDelete() throws Exception {
+    	System.out.println("Sending DELETE to path /processdefinition with invalid deployment ID");
+    	
+        sendRequest("DELETE", "processdefinition/INVALID_ID", "", null, null, 404, testAdmin);
     }
 }

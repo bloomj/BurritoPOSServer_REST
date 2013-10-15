@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
 
-import com.burritopos.server.rest.library.activiti.Definition;
 import com.burritopos.server.rest.test.webresource.BaseServiceCoreTest;
 
 import org.apache.commons.io.IOUtils;
@@ -13,15 +12,10 @@ import org.codehaus.jackson.node.ObjectNode;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.authority.AuthorityUtils;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 /**
  * Runner class for the Burrito POS service to test the REST functionality for Process Definition.
@@ -29,10 +23,6 @@ import static org.junit.Assert.assertNotNull;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 public class WorkflowActivitiTest extends BaseServiceCoreTest {
-	// TODO: Replace with REST call to delete process definition
-    @Autowired
-    protected Definition activitiDefinitionSvc;
-	
     // global var for test cleanup
     protected String deploymentId;
     protected String processDefinitionId;
@@ -92,25 +82,6 @@ public class WorkflowActivitiTest extends BaseServiceCoreTest {
     // helper functions for all Activiti Unit Tests
     
     /**
-     * Updates principal context
-     * 
-     * @param user
-     * @throws Exception
-     */
-    protected void updatePrincipal(com.burritopos.server.domain.User user) throws Exception {
-    	System.out.println("Setting Security Principal to: " + user.getUserName());
-    	
-        // set OAuth principal for test user
-        String[] roles = new String[user.getGroupId().size()];
-        for(int i=0; i<user.getGroupId().size(); i++) {
-        	roles[i] = groupSvc.getGroup(user.getGroupId().get(i)).getName();
-        }
-        User userPrincipal = new User(user.getUserName(), user.getPassword(), true, true, true, true, AuthorityUtils.createAuthorityList(roles));
-        Authentication userAuth = new UsernamePasswordAuthenticationToken(userPrincipal, user.getPassword());
-        SecurityContextHolder.getContext().setAuthentication(userAuth);
-    }
-    
-    /**
      * Creates Activiti deployment.
      *
      * @return deployment id
@@ -155,13 +126,10 @@ public class WorkflowActivitiTest extends BaseServiceCoreTest {
      * @throws Exception
      */
     protected void deleteDefinition(String deploymentId) throws Exception {
-    	// ensure user has admin role
-        updatePrincipal(testAdmin);
-        // TODO: Replace with REST call to delete process definition
         // test for success
-    	activitiDefinitionSvc.deleteProcessDefinition(deploymentId);
-    	
-    	updatePrincipal(testUser);
+        responseJson = sendRequest("DELETE", "processdefinition/" + deploymentId, "", null, null, 204, testAdmin);
+
+        assertNull(responseJson);
     }
     
     /**
