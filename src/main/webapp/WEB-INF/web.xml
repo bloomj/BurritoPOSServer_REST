@@ -104,7 +104,7 @@
 		</init-param>
 		<init-param>
 			<param-name>swagger.api.basepath</param-name>
-			<param-value>https://localhost:8443/burritopos-service/api</param-value>
+			<param-value>https://localhost:8443/burritopos-service</param-value>
 		</init-param>
 		<load-on-startup>2</load-on-startup>
 	</servlet>
