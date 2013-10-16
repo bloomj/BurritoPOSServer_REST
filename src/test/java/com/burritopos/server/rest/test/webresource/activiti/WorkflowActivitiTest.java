@@ -7,6 +7,7 @@ import java.io.StringWriter;
 import java.util.Iterator;
 
 import com.burritopos.server.domain.User;
+import com.burritopos.server.rest.library.activiti.Instance;
 import com.burritopos.server.rest.test.webresource.BaseServiceCoreTest;
 import com.sun.jersey.core.util.MultivaluedMapImpl;
 
@@ -17,6 +18,7 @@ import org.codehaus.jackson.node.ObjectNode;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import static org.junit.Assert.assertNotNull;
@@ -33,6 +35,10 @@ public class WorkflowActivitiTest extends BaseServiceCoreTest {
     protected String deploymentId;
     protected String processDefinitionId;
     protected String processInstanceId;
+    
+    // TODO: Remove when delete endpoint is available
+    @Autowired
+    protected Instance instanceSvc;
     
     /**
      * Initializes the service Jersey test runner and sets the context to the applicationContext.xml.
@@ -63,7 +69,7 @@ public class WorkflowActivitiTest extends BaseServiceCoreTest {
     @After
     public void tearDownCommonResources() throws Exception {
         // make sure processInstanceId still exists
-        /*if (!processDefinitionId.isEmpty()) {
+        if (!processDefinitionId.isEmpty()) {
             processInstanceId = getProcessInstanceId(processDefinitionId, true);
             System.out.println("Got processInstanceId: " + processInstanceId);
 
@@ -71,7 +77,7 @@ public class WorkflowActivitiTest extends BaseServiceCoreTest {
             if (!processInstanceId.isEmpty()) {
                 deleteInstance(processInstanceId);
             }
-        }*/
+        }
 
         // clean up definition
         if (!deploymentId.isEmpty()) {
@@ -179,6 +185,87 @@ public class WorkflowActivitiTest extends BaseServiceCoreTest {
         }
 
         return processDefinitionId;
+    }
+    
+    /**
+     * Creates Activiti instance based of an existing Activiti deployment.
+     *
+     * @param deploymentId
+     * @throws Exception 
+     */
+    protected void createInstance(String deploymentId, ObjectNode formPropJson, int statusCode) throws Exception {
+        // get ProcessDefinitionId
+        processDefinitionId = getProcessDefinitionId(deploymentId, "", testUser);
+        System.out.println("Got processDefinitionId: " + processDefinitionId);
+
+        ObjectNode rootNode = getStartFormProperties();
+        rootNode.put("ProcessDefinitionId", processDefinitionId);
+
+        // add form properties
+        ArrayNode embeddedArray = new ArrayNode(factory);
+
+        embeddedArray.add(formPropJson);
+        rootNode.put("StartFormProperties", embeddedArray);
+
+        sendRequest("POST", "processinstance", "", rootNode, null, statusCode, testUser);
+    }
+    
+    /**
+     * Deletes Activiti deployment instance.
+     *
+     * @param processInstanceId
+     * @throws Exception 
+     */
+    protected void deleteInstance(String processInstanceId) throws Exception {
+    	//TODO: move to delete endpoint when available
+        // successful delete returns NO_CONTENT 204
+        instanceSvc.deleteProcessInstance(processInstanceId);
+
+        //assertNull(responseJson);
+    }
+    
+    /**
+     * Gets process instance id from process definition id.
+     *
+     * @param processDefinitionId
+     * @return
+     * @throws Exception 
+     */
+    protected String getProcessInstanceId(String processDefinitionId, Boolean isFormComplete) throws Exception {
+        String processInstanceId = "";
+        
+        //TODO: move to get endpoint when available
+        responseJson = mapper.readTree(instanceSvc.getProcessInstanceList());
+
+        ArrayNode definitionList = (ArrayNode) responseJson.get("ProcessInstanceList");
+        if (!isFormComplete) {
+            assertTrue(definitionList.size() > 0);
+        }
+
+        Iterator<JsonNode> childNodes = definitionList.getElements();
+        boolean instanceExists = false;
+        while (childNodes.hasNext()) {
+            JsonNode childJson = childNodes.next();
+            System.out.println("Got child node: " + childJson.toString());
+
+			/*Iterator<String> names = childJson.getFieldNames();
+	        while (names.hasNext()) {
+	        	System.out.println("Got child node element: " + names.next());
+	        	assertNotNull(childJson.get(names.next()));
+	        }
+	        */
+            System.out.println("child id: " + childJson.get("ProcessDefinitionId").asText() + " | processDefinitionId: " + processDefinitionId);
+            if (processDefinitionId.equals(childJson.get("ProcessDefinitionId").asText())) {
+                instanceExists = true;
+                processInstanceId = childJson.get("Id").asText();
+            }
+        }
+
+        if (!processDefinitionId.isEmpty() && !isFormComplete) {
+            assertTrue(instanceExists);
+        }
+
+        return processInstanceId;
     }
     
     /**

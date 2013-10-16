@@ -82,4 +82,7 @@
 	<bean id="processDefinition" class="com.burritopos.server.rest.webresource.activiti.ProcessDefinition" scope="singleton">
 		<property name="definitionSvc" ref="activitiDefinitionSvc" />
 	</bean>
+	<bean id="processInstance" class="com.burritopos.server.rest.webresource.activiti.ProcessInstance" scope="singleton">
+		<property name="instanceSvc" ref="activitiInstanceSvc" />
+	</bean>
 </beans>
