@@ -7,7 +7,6 @@ import java.io.StringWriter;
 import java.util.Iterator;
 
 import com.burritopos.server.domain.User;
-import com.burritopos.server.rest.library.activiti.Instance;
 import com.burritopos.server.rest.test.webresource.BaseServiceCoreTest;
 import com.sun.jersey.core.util.MultivaluedMapImpl;
 
@@ -18,7 +17,6 @@ import org.codehaus.jackson.node.ObjectNode;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import static org.junit.Assert.assertNotNull;
@@ -35,11 +33,7 @@ public class WorkflowActivitiTest extends BaseServiceCoreTest {
     protected String deploymentId;
     protected String processDefinitionId;
     protected String processInstanceId;
-    
-    // TODO: Remove when get endpoint is available
-    @Autowired
-    protected Instance instanceSvc;
-    
+
     /**
      * Initializes the service Jersey test runner and sets the context to the applicationContext.xml.
      */
@@ -233,8 +227,7 @@ public class WorkflowActivitiTest extends BaseServiceCoreTest {
     protected String getProcessInstanceId(String processDefinitionId, Boolean isFormComplete) throws Exception {
         String processInstanceId = "";
         
-        //TODO: move to get endpoint when available
-        responseJson = mapper.readTree(instanceSvc.getProcessInstanceList());
+        responseJson = sendRequest("GET", "processinstance", "", null, new MultivaluedMapImpl(), 200, testUser);
 
         ArrayNode definitionList = (ArrayNode) responseJson.get("ProcessInstanceList");
         if (!isFormComplete) {

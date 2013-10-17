@@ -133,4 +133,29 @@ public class ProcessInstanceTest extends WorkflowActivitiTest {
 
         sendRequest("DELETE", "processinstance/INVALID_ID", "", null, null, 404, testUser);
     }
+    
+    /**
+     * Tests for 200 response to a GET method to path /processinstance and verifies the response payload.
+     * @throws Exception 
+     */
+    @Test
+    @Category(BuildTests.class)
+    public void testProcessInstanceGet() throws Exception {
+        getProcessInstanceId("", true);
+    }
+
+    /**
+     * Tests for 4XX response to a GET method to path /processinstance via invalid acceptable media type.
+     * @throws Exception 
+     */
+    @Test
+    @Category(BuildTests.class)
+    public void testInvalidProcessInstanceGet() throws Exception {
+    	Client c = Client.create();
+        c.addFilter(new HTTPBasicAuthFilter(testUser.getUserName(), testUser.getPassword()));
+        ws = c.resource(DEFAULT_URI).path("processinstance");
+        response = ws.type(MediaType.APPLICATION_XML).get(ClientResponse.class);
+
+        assertEquals(415, response.getStatus());
+    }
 }
