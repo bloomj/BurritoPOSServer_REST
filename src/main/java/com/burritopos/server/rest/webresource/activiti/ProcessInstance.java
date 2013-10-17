@@ -109,4 +109,30 @@ public class ProcessInstance {
             throw new WebApplicationException(builder.status(Response.Status.INTERNAL_SERVER_ERROR).entity(rootNode.toString()).build());
         }    
     }
+    
+    /**
+     * Deletes an Activiti deployment instance based on process definition id.
+     *
+     * @param headers
+     * @param ui
+     * @return
+     * @throws Exception
+     */
+    @Path("/{processInstanceId}")
+    @DELETE
+    @ApiOperation(value = "Delete Activiti Process Instance", notes = "Deletes Process Instance in Activiti", httpMethod = "DELETE", response = Response.class)
+    @ApiResponses(value = {
+      @ApiResponse(code = 204, message = "No Content"),
+      @ApiResponse(code = 404, message = "Not Found"),
+      @ApiResponse(code = 500, message = "Server Error")
+    })
+    @Timed
+    @Produces(APPLICATION_JSON)
+    public Response deleteProcessInstance(@Context HttpHeaders headers,
+                                          @Context UriInfo ui,
+                                          @PathParam("processInstanceId") String processInstanceId
+    ) throws Exception {
+    	instanceSvc.deleteProcessInstance(processInstanceId);
+        return Response.noContent().build();
+    }
 }
