@@ -130,9 +130,32 @@ public class ProcessInstance {
     @Produces(APPLICATION_JSON)
     public Response deleteProcessInstance(@Context HttpHeaders headers,
                                           @Context UriInfo ui,
-                                          @PathParam("processInstanceId") String processInstanceId
+                                          @ApiParam(name = "processInstanceId", value = "Activiti Process Instance ID", required = true) 
+    									  @PathParam("processInstanceId") String processInstanceId
     ) throws Exception {
     	instanceSvc.deleteProcessInstance(processInstanceId);
         return Response.noContent().build();
+    }
+    
+    /**
+     * Gets list of Activiti process instances.
+     * 
+     * @param headers
+     * @param ui
+     * @return
+     * @throws Exception
+     */
+    @GET
+    @ApiOperation(value = "Gets list of Activiti process instances", notes = "Gets list of Activiti process instances", httpMethod = "GET", response = Response.class)
+    @ApiResponses(value = {
+      @ApiResponse(code = 200, message = "OK")
+    })
+    @Timed
+    @Consumes(APPLICATION_JSON)
+    @Produces(APPLICATION_JSON)
+    public Response getProcessInstance(@Context HttpHeaders headers,
+                                       @Context UriInfo ui
+    ) throws Exception {
+        return Response.ok(instanceSvc.getProcessInstanceList()).build();
     }
 }
