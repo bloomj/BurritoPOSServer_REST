@@ -36,7 +36,7 @@ public class WorkflowActivitiTest extends BaseServiceCoreTest {
     protected String processDefinitionId;
     protected String processInstanceId;
     
-    // TODO: Remove when delete endpoint is available
+    // TODO: Remove when get endpoint is available
     @Autowired
     protected Instance instanceSvc;
     
@@ -217,11 +217,10 @@ public class WorkflowActivitiTest extends BaseServiceCoreTest {
      * @throws Exception 
      */
     protected void deleteInstance(String processInstanceId) throws Exception {
-    	//TODO: move to delete endpoint when available
-        // successful delete returns NO_CONTENT 204
-        instanceSvc.deleteProcessInstance(processInstanceId);
+    	// successful delete returns NO_CONTENT 204
+        responseJson = sendRequest("DELETE", "processinstance/" + processInstanceId, "", null, null, 204, testUser);
 
-        //assertNull(responseJson);
+        assertNull(responseJson);
     }
     
     /**
