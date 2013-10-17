@@ -101,4 +101,36 @@ public class ProcessInstanceTest extends WorkflowActivitiTest {
         rootNode.put("ProcessDefinitionId", "INVALID_PARAM");
         sendRequest("POST", "processinstance", "ProcessDefinitionId", rootNode, null, 400, testUser);
     }
+
+    /**
+     * Tests for 200 response to a DELETE method to path /processinstance and verifies the response payload.
+     * @throws Exception 
+     */
+    @Test
+    @Category(IntegrationTests.class)
+    public void testProcessInstanceDelete() throws Exception {
+        // setup
+        deploymentId = createDefinition("xml", "DailySalesReport.bpmn20.xml");
+
+        ObjectNode formPropJson = getStartFormProperties();
+
+        createInstance(deploymentId, formPropJson, 201);
+    }
+
+    /**
+     * Tests for 4XX response to a DELETE method to path /processinstance via blank deployment id and invalid deployment id.
+     * @throws Exception 
+     */
+    @Test
+    @Category(BuildTests.class)
+    public void testInvalidProcessInstanceDelete() throws Exception {
+    	Client c = Client.create();
+        c.addFilter(new HTTPBasicAuthFilter(testUser.getUserName(), testUser.getPassword()));
+        ws = c.resource(DEFAULT_URI).path("processinstance");
+        response = ws.type(MediaType.APPLICATION_XML).delete(ClientResponse.class);
+
+        assertEquals(405, response.getStatus());
+
+        sendRequest("DELETE", "processinstance/INVALID_ID", "", null, null, 404, testUser);
+    }
 }
