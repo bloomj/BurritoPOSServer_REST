@@ -8,13 +8,15 @@ import org.junit.runners.Suite.SuiteClasses;
 
 import com.burritopos.server.rest.test.webresource.activiti.ProcessDefinitionTest;
 import com.burritopos.server.rest.test.webresource.activiti.ProcessInstanceTest;
+import com.burritopos.server.rest.test.webresource.activiti.ProcessTaskTest;
 
 
 @RunWith(Suite.class)
 @SuiteClasses({ 
 	ServerServiceTest.class,
 	ProcessDefinitionTest.class,
-	ProcessInstanceTest.class
+	ProcessInstanceTest.class,
+	ProcessTaskTest.class
 	})
     public class CoreTests {
 
