@@ -6,6 +6,8 @@ import java.io.InputStream;
 import java.io.StringWriter;
 import java.util.Iterator;
 
+import javax.ws.rs.core.MultivaluedMap;
+
 import com.burritopos.server.domain.User;
 import com.burritopos.server.rest.test.webresource.BaseServiceCoreTest;
 import com.sun.jersey.core.util.MultivaluedMapImpl;
@@ -258,6 +260,73 @@ public class WorkflowActivitiTest extends BaseServiceCoreTest {
         }
 
         return processInstanceId;
+    }
+    
+    /**
+     * Gets task instance id from available tasks.
+     *
+     * @param processDefinitionId
+     * @param type
+     * @return
+     * @throws Exception 
+     */
+    protected String getTaskId(String processDefinitionId, String executionId, String type) throws Exception {
+        String taskId = "";
+
+        // setup parameters
+        MultivaluedMap<String, String> params = new MultivaluedMapImpl();
+        params.add("Type", type);
+
+        // test we have newly created task instance
+        responseJson = sendRequest("GET", "usertask", "", null, params, 200, testUser);
+
+        ArrayNode definitionList = (ArrayNode) responseJson.get("TaskList");
+        Iterator<JsonNode> childNodes = definitionList.getElements();
+        boolean instanceExists = false;
+        while (childNodes.hasNext()) {
+            JsonNode childJson = childNodes.next();
+            //System.out.println("Got child node: " + childJson.toString());
+
+            ArrayNode variableList = (ArrayNode) childJson.get("VariableList");
+            assertTrue(variableList.size() > 0);
+
+            // this is the check if the process instance is started through form services
+            if (childJson.findValue("ExecutionId") != null) {
+                System.out.println("child id: " + childJson.get("ExecutionId").asText() + " | executionId: " + executionId);
+                if (executionId.equals(childJson.get("ExecutionId").asText())) {
+                    instanceExists = true;
+                    taskId = childJson.get("Id").asText();
+                }
+            }
+
+            Iterator<JsonNode> subchildNodes = variableList.getElements();
+            while (subchildNodes.hasNext()) {
+                JsonNode subchildJson = subchildNodes.next();
+                //System.out.println("Got sub-child node: " + subchildJson.toString());
+
+				/*Iterator<String> names = childJson.getFieldNames();
+		        while (names.hasNext()) {
+		        	System.out.println("Got child node element: " + names.next());
+		        	assertNotNull(childJson.get(names.next()));
+		        }
+		        */
+
+                // this is the check if the process instance is started through runtime services
+                if (subchildJson.findValue("ProcessDefinitionId") != null) {
+                    System.out.println("sub-child id: " + subchildJson.get("ProcessDefinitionId").asText() + " | processDefinitionId: " + processDefinitionId);
+                    if (processDefinitionId.equals(subchildJson.get("ProcessDefinitionId").asText())) {
+                        instanceExists = true;
+                        taskId = childJson.get("Id").asText();
+                    }
+                }
+            }
+        }
+
+        if (!processDefinitionId.isEmpty()) {
+            assertTrue(instanceExists);
+        }
+
+        return taskId;
     }
     
     /**

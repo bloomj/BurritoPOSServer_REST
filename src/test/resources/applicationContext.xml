@@ -82,5 +82,8 @@
 	<bean id="processInstance" class="com.burritopos.server.rest.webresource.activiti.ProcessInstance" scope="singleton">
 		<property name="instanceSvc" ref="activitiInstanceSvc" />
 	</bean>
+	<bean id="userTask" class="com.burritopos.server.rest.webresource.activiti.ProcessTask" scope="singleton">
+		<property name="taskSvc" ref="activitiUserTaskSvc" />
+	</bean>
 	
 </beans>
