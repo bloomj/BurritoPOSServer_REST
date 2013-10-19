@@ -21,6 +21,7 @@ import org.junit.Before;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -327,6 +328,79 @@ public class WorkflowActivitiTest extends BaseServiceCoreTest {
         }
 
         return taskId;
+    }
+    
+    /**
+     * Completes a business process life cycle by claiming and completing user tasks.
+     *
+     * @param bpmnName
+     * @throws Exception
+     */
+    protected void taskInstancePost(String bpmnName) throws Exception {
+        // setup
+        deploymentId = createDefinition("xml", bpmnName);
+
+        // get Draft ProcessDefinitionId
+        processDefinitionId = getProcessDefinitionId(deploymentId, "", testUser);
+        System.out.println("Got Draft processDefinitionId: " + processDefinitionId);
+        System.out.println("   ");
+
+        ObjectNode rootNode = mapper.createObjectNode();
+
+        rootNode.put("ProcessDefinitionId", processDefinitionId);
+
+        // add form properties
+        ArrayNode embeddedArray = new ArrayNode(factory);
+        ObjectNode formPropJson = getStartFormProperties();
+
+        createInstance(deploymentId, formPropJson, 201);
+
+        // get processInstanceId
+        String processInstanceId = getProcessInstanceId(processDefinitionId, false);
+        System.out.println("Got processInstanceId: " + processInstanceId);
+
+        // get task id
+        String taskId = getTaskId(processDefinitionId, processInstanceId, "Available");
+        System.out.println("Got task id: " + taskId);
+
+        // Claim task
+        rootNode = mapper.createObjectNode();
+        rootNode.put("Action", "Claim");
+
+        responseJson = sendRequest("PUT", "usertask/" + taskId, "", rootNode, null, 200, testUser);
+
+        checkTaskList((ArrayNode) responseJson.get("TaskInstanceClaimedList"), taskId, testUser.getId().toString());
+
+        // Complete first task using Draft state
+        rootNode = mapper.createObjectNode();
+        rootNode.put("Action", "Complete");
+
+        // add task properties
+        embeddedArray = new ArrayNode(factory);
+        formPropJson = mapper.createObjectNode();
+        formPropJson.put("testVal", "Test Value 123");
+        formPropJson.put("usertaskDraftenum", "EnumId1");
+        embeddedArray.add(formPropJson);
+        rootNode.put("TaskFormProperties", embeddedArray);
+
+        responseJson = sendRequest("PUT", "usertask/" + taskId, "", rootNode, null, 200, testUser);
+
+        checkTaskList((ArrayNode) responseJson.get("TaskInstanceCompletedList"), taskId, testUser.getId().toString());
+    }
+    
+    /**
+     * Checks task list return JSON
+     * @param listName
+     * @param taskId
+     * @param userId
+     */
+    protected void checkTaskList(ArrayNode definitionList, String taskId, String userId) {
+        assertTrue(definitionList.size() > 0);
+        JsonNode childJson = definitionList.getElements().next();
+        assertNotNull(childJson.get("TaskId"));
+        assertNotNull(childJson.get("Assignee"));
+        assertEquals(childJson.get("TaskId").asText(), taskId);
+        assertEquals(userId, childJson.get("Assignee").asText());
     }
     
     /**

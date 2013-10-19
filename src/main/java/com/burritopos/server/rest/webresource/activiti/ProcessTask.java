@@ -17,12 +17,14 @@
  */
 package com.burritopos.server.rest.webresource.activiti;
 
+import com.sun.jersey.core.spi.factory.ResponseBuilderImpl;
 import com.wordnik.swagger.annotations.*;
 import com.yammer.metrics.annotation.Timed;
 
 import org.apache.log4j.Logger;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.node.ObjectNode;
 
 import com.burritopos.server.rest.library.activiti.UserTask;
 import com.burritopos.server.rest.utilities.BurritoPOSUtils;
@@ -97,6 +99,51 @@ public class ProcessTask {
             return Response.ok(response).build();
         } else {
             return Response.status(Response.Status.BAD_REQUEST).entity(response).build();
+        }
+    }
+    
+    /**
+     * Updates Activiti User task.
+     * 
+     * @param headers
+     * @param ui
+     * @param taskId
+     * @param payload
+     * @return
+     * @throws Exception
+     */
+    @Path("/{taskId}")
+    @PUT
+    @ApiOperation(value = "Updates Activiti User task", notes = "Updates Activiti User task", httpMethod = "PUT", response = Response.class)
+    @ApiResponses(value = {
+      @ApiResponse(code = 200, message = "OK"),
+      @ApiResponse(code = 400, message = "Bad Request"),
+      @ApiResponse(code = 404, message = "Not Found"),
+      @ApiResponse(code = 500, message = "Server Error")
+    })
+    @Timed
+    @Consumes(APPLICATION_JSON)
+    @Produces(APPLICATION_JSON)
+    public Response updateUserTask(@Context HttpHeaders headers,
+                                   @Context UriInfo ui,
+                                   @ApiParam(name = "taskId", value = "Activiti Task ID", required = true) 
+                                   @PathParam("taskId") String taskId,
+                                   @ApiParam(name = "payload", value = "Method Payload", required = true) 
+                                   String payload
+    ) throws Exception {
+        MultivaluedMap<String, String> queryParameters = ui.getQueryParameters();
+        Map<String, String> queryParams = BurritoPOSUtils.parseMultivaluedMap(queryParameters);
+
+        try {
+            return Response.ok(taskSvc.updateTask(taskId, queryParams, payload)).build();
+        } catch (WebApplicationException we) {
+            throw we;
+        } catch (Exception e) {
+        	dLog.error("Unable to update user task", e);
+            ResponseBuilderImpl builder = new ResponseBuilderImpl();
+            ObjectNode rootNode = mapper.createObjectNode();
+            rootNode.put("Error", e.getMessage());
+            throw new WebApplicationException(builder.status(Response.Status.INTERNAL_SERVER_ERROR).entity(rootNode.toString()).build());
         }
     }
 }
