@@ -1,5 +1,7 @@
 package com.burritopos.server.rest.test.webresource.activiti;
 
+import static org.junit.Assert.assertEquals;
+
 import com.burritopos.server.rest.test.BuildTests;
 import com.burritopos.server.rest.test.IntegrationTests;
 import com.sun.jersey.api.client.Client;
@@ -7,6 +9,7 @@ import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.filter.HTTPBasicAuthFilter;
 import com.sun.jersey.core.util.MultivaluedMapImpl;
 
+import org.codehaus.jackson.node.ObjectNode;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -85,5 +88,53 @@ public class ProcessTaskTest extends WorkflowActivitiTest {
         MultivaluedMap<String, String> params = new MultivaluedMapImpl();
         params.add("Type", "INVALID_TYPE");
         sendRequest("GET", "usertask", "Type", null, params, 400, testUser);
+    }
+
+    /**
+     * Tests for 200 response to a PUT method to path /usertask using a BPMN XML definition without form extensions and verifies the response payload
+     * @throws Exception
+     */
+    @Test
+    @Category(IntegrationTests.class)
+    public void testTaskInstancePut() throws Exception {
+        taskInstancePost("DailySalesReport.bpmn20.xml");
+    }
+
+    /**
+     * Tests for 4XX response to a POST method to path /usertask via invalid acceptable media type, missing payload values, and invalid task id.
+     * @throws Exception 
+     */
+    @Test
+    @Category(IntegrationTests.class)
+    public void testInvalidTaskInstancePut() throws Exception {
+    	Client c = Client.create();
+        c.addFilter(new HTTPBasicAuthFilter(testUser.getUserName(), testUser.getPassword()));
+        ws = c.resource(DEFAULT_URI).path("usertask/INVALID_ID");
+        response = ws.type(MediaType.APPLICATION_XML).put(ClientResponse.class);
+
+        // now get the response entity
+        String responsePayload = response.getEntity(String.class);
+        System.out.println("Returned: " + responsePayload);
+        System.out.println("   ");
+
+        assertEquals(415, response.getStatus());
+
+        sendRequest("PUT", "usertask/INVALID_ID", "", null, null, 400, testUser);
+
+        ObjectNode rootNode = mapper.createObjectNode();
+        rootNode.put("INVALID_PARAM", "INVALID_PARAM");
+        sendRequest("PUT", "usertask/INVALID_ID", "Action", rootNode, null, 400, testUser);
+
+        rootNode = mapper.createObjectNode();
+        rootNode.put("Action", "INVALID_ACTION");
+        sendRequest("PUT", "usertask/INVALID_ID", "Action", rootNode, null, 400, testUser);
+
+        rootNode = mapper.createObjectNode();
+        rootNode.put("Action", "Claim");
+        sendRequest("PUT", "usertask/INVALID_ID", "UserId", rootNode, null, 404, testUser);
+
+        rootNode = mapper.createObjectNode();
+        rootNode.put("Action", "Complete");
+        sendRequest("PUT", "usertask/INVALID_ID", "UserId", rootNode, null, 404, testUser);
     }
 }

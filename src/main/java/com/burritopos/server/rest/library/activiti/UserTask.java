@@ -206,7 +206,7 @@ public class UserTask extends WorkflowActiviti {
     public String updateTask(String taskId, Map<String, String> parameters, String payload) throws WebApplicationException, Exception {
         ObjectMapper mapper = new ObjectMapper();
         ObjectNode rootNode = mapper.createObjectNode();
-
+        dLog.trace("in updatetask");
         if (payload == null || payload.isEmpty()) {
             rootNode.put("Error", "Payload is required when updating a Task");
             rootNode.putAll(getValidUpdateTaskActionPayload());

@@ -209,6 +209,9 @@ public class BaseServiceCoreTest extends AbstractSpringAwareJerseyTest {
             if (method.equals("POST")) {
             	response = ws.type(MediaType.APPLICATION_JSON).post(ClientResponse.class);
             }
+            else if(method.equals("PUT")) {
+            	response = ws.type(MediaType.APPLICATION_JSON).put(ClientResponse.class);
+            }
             else if (method.equals("GET")) {
             	ws = c.resource(DEFAULT_URI).path(path).queryParams(params);
                 response = ws.type(MediaType.APPLICATION_JSON).get(ClientResponse.class);
@@ -222,6 +225,9 @@ public class BaseServiceCoreTest extends AbstractSpringAwareJerseyTest {
             if (method.equals("POST")) {
             	response = ws.type(MediaType.APPLICATION_JSON).entity(rootNode.toString()).post(ClientResponse.class);
             }
+            else if(method.equals("PUT")) {
+            	response = ws.type(MediaType.APPLICATION_JSON).entity(rootNode.toString()).put(ClientResponse.class);
+            }
             else {
                 fail("Invalid method");
             }
@@ -230,7 +236,7 @@ public class BaseServiceCoreTest extends AbstractSpringAwareJerseyTest {
     	if(response.getStatus() != Response.Status.NO_CONTENT.getStatusCode()) {
     		// now get the response entity
         	String responsePayload = response.getEntity(String.class);
-        	
+        	System.out.println("Status: " + response.getStatus());
     		try {
 	    		responseJson = mapper.readTree(responsePayload);
 	    		System.out.println("Returned: " + response.getStatus() + " " + responsePayload);
