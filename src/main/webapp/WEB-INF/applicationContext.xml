@@ -34,6 +34,9 @@
 	<!-- Activiti -->
 	<import resource="activiti.xml"/>
 
+	<!-- AMQP -->
+    <import resource="amqp.xml" />
+
 	<!-- yammer.metrics -->
     <import resource="yammerMetrics.xml" />
 
@@ -64,8 +67,11 @@
 	<bean id="activitiInstanceSvc" class="com.burritopos.server.rest.library.activiti.Instance" parent="activitiSvc" scope="singleton"/>
 	<bean id="activitiUserTaskSvc" class="com.burritopos.server.rest.library.activiti.UserTask" parent="activitiSvc" scope="singleton"/>
 	
-	<!-- com.burritopos.server.rest.library.activiti.listener -->
+	<!-- com.burritopos.server.rest.library.activiti.delegate -->
 	<bean id="simpleDelegate" class="com.burritopos.server.rest.library.activiti.delegate.SimpleDelegate" scope="singleton"/>
+	<bean id="amqpDelegate" class="com.burritopos.server.rest.library.activiti.delegate.AMQPDelegate" scope="singleton">
+        <property name="template" ref="amqp.template"/>
+    </bean>
 	
 	<!-- com.burritopos.server.rest.library.activiti.listener -->
 	<bean id="simpleExecutionListener" class="com.burritopos.server.rest.library.activiti.listener.SimpleExecutionListener" scope="singleton"/>
