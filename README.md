@@ -18,6 +18,7 @@ Currently demonstrates
 * OAuth (via Spring Security)
 * Mongo (NoSQL)
 * Activiti (PostGRES backend)
+* RabbitMQ (AMQP)
 * Yammer.metrics
 * JavaDoc
 * Swagger REST API Documentation
